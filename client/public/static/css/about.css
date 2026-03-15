@@ -1,0 +1,670 @@
+.about-section {
+    padding: 100px 0;
+    position: relative;
+}
+
+.about-section .container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.about-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(167, 139, 250, 0.1) 100%);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    color: #a78bfa;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    font-family: var(--font-body);
+    letter-spacing: 0.5px;
+}
+
+.about-heading {
+    font-family: var(--font-heading);
+    font-size: 48px;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    line-height: 1.2;
+    font-weight: 400;
+}
+
+.about-images {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    height: 580px;
+    margin: 0 auto 60px auto;
+}
+
+.about-image-item {
+    position: absolute;
+    transition: none;
+}
+
+/* Only center image has background */
+.about-img-3 {
+    background: linear-gradient(135deg, rgba(50, 60, 140, 0.4) 0%, rgba(30, 40, 100, 0.3) 100%);
+    padding: 18px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.about-bg-text {
+    position: absolute;
+    bottom: -12%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 140px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+}
+
+.about-img-3 img {
+    position: relative;
+    z-index: 2;
+}
+
+.about-img-1:hover,
+.about-img-2:hover,
+.about-img-4:hover,
+.about-img-5:hover {
+    transform: none;
+}
+
+.about-img-3:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.about-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+}
+
+/* Center image inner img needs more roundness to match container */
+.about-img-3 img {
+    border-radius: 22px;
+}
+
+/* Image positioning - matching the screenshot layout */
+.about-img-1 {
+    width: 180px;
+    height: 180px;
+    left: 0;
+    top: 20%;
+    z-index: 3;
+    opacity: 0.85;
+    border-radius: 40px;
+}
+
+.about-img-2 {
+    width: 75px;
+    height: 75px;
+    left: 12%;
+    bottom: 25%;
+    z-index: 2;
+    opacity: 0.75;
+    border-radius: 22px;
+}
+
+.about-img-3 {
+    width: 400px;
+    height: 500px;
+    left: 50%;
+    top: 50%;
+    margin-left: -200px;
+    margin-top: -250px;
+    z-index: 10;
+    border-radius: 30px;
+    opacity: 1;
+}
+
+.about-img-3:hover {
+    transform: none;
+}
+
+.about-img-4 {
+    width: 145px;
+    height: 145px;
+    right: 2%;
+    top: 22%;
+    z-index: 3;
+    opacity: 0.85;
+    border-radius: 35px;
+}
+
+.about-img-5 {
+    width: 130px;
+    height: 130px;
+    right: 8%;
+    bottom: 20%;
+    z-index: 2;
+    opacity: 0.75;
+    border-radius: 32px;
+}
+
+/* Decorative circles */
+.about-decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(167, 139, 250, 0.1) 100%);
+}
+
+.circle-1 {
+    width: 70px;
+    height: 70px;
+    left: 10%;
+    bottom: 45%;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(167, 139, 250, 0.1) 100%);
+    mix-blend-mode: screen;
+}
+
+.circle-2 {
+    width: 120px;
+    height: 120px;
+    right: 9%;
+    bottom: 65%;
+    z-index: 5;
+    background: linear-gradient(135deg, rgba(237, 58, 124, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%);
+    mix-blend-mode: screen;
+}
+
+/* Decorative dots */
+.about-decoration-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    box-shadow: none;
+    z-index: 10;
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 0 0px 0px rgba(167, 139, 250, 0);
+        background: #e8e8e8;
+    }
+    50% {
+        box-shadow: 0 0 10px 3px rgba(167, 139, 250, 0.7), 0 0 20px 6px rgba(124, 58, 237, 0.3);
+        background: #c4b5fd;
+    }
+}
+
+.dot-1 {
+    left: 2%;
+    bottom: 40%;
+    width: 11px;
+    height: 11px;
+    opacity: 0.9;
+    animation: float 3s ease-in-out infinite, glowPulse 2.8s ease-in-out infinite;
+}
+
+.dot-2 {
+    left: 18%;
+    top: 15%;
+    width: 11px;
+    height: 11px;
+    opacity: 0.9;
+    animation: float 4s ease-in-out infinite 0.5s, glowPulse 3.2s ease-in-out infinite 0.5s;
+}
+
+.dot-3 {
+    right: 2%;
+    top: 18%;
+    width: 7px;
+    height: 7px;
+    opacity: 0.3;
+    animation: float 3.5s ease-in-out infinite 1s, glowPulse 3.6s ease-in-out infinite 1s;
+}
+
+.dot-4 {
+    left: 18%;
+    top: 38%;
+    width: 10px;
+    height: 10px;
+    opacity: 0.7;
+    animation: float 3.2s ease-in-out infinite 1.5s, glowPulse 2.6s ease-in-out infinite 1.5s;
+}
+
+.dot-5 {
+    right: 2%;
+    bottom: 30%;
+    width: 11px;
+    height: 11px;
+    opacity: 0.6;
+    animation: float 3.8s ease-in-out infinite 0.8s, glowPulse 3s ease-in-out infinite 0.8s;
+}
+
+.dot-6 {
+    left: 20%;
+    bottom: 45%;
+    width: 7px;
+    height: 7px;
+    opacity: 0.2;
+    animation: float 3.3s ease-in-out infinite 1.2s, glowPulse 3.4s ease-in-out infinite 1.2s;
+}
+
+.dot-7 {
+    right: 20%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    opacity: 0.3;
+    animation: float 3.6s ease-in-out infinite 0.3s, glowPulse 2.9s ease-in-out infinite 0.3s;
+}
+
+.dot-8 {
+    right: 18%;
+    top: 28%;
+    width: 10px;
+    height: 10px;
+    opacity: 0.7;
+    animation: float 3.4s ease-in-out infinite 0.6s, glowPulse 3.1s ease-in-out infinite 0.6s;
+}
+
+.dot-9 {
+    left: 5%;
+    bottom: 20%;
+    width: 7px;
+    height: 7px;
+    opacity: 0.2;
+    animation: float 3.7s ease-in-out infinite 1.1s, glowPulse 3.5s ease-in-out infinite 1.1s;
+}
+
+.dot-10 {
+    right: 12%;
+    bottom: 12%;
+    width: 9px;
+    height: 9px;
+    opacity: 0.45;
+    animation: float 3.9s ease-in-out infinite 0.4s, glowPulse 2.7s ease-in-out infinite 0.4s;
+}
+
+.about-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.about-description {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: #ffffff;
+    font-weight: 400;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.about-subdescription {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: #d1d5db;
+    font-weight: 300;
+    line-height: 1.7;
+    margin-bottom: 35px;
+}
+
+.about-btn {
+    margin-top: 10px;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(0px);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .about-images {
+        max-width: 700px;
+        height: 450px;
+    }
+    
+    .about-img-1 {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .about-img-2 {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .about-img-3 {
+        width: 320px;
+        height: 400px;
+        margin-left: -160px;
+        margin-top: -200px;
+    }
+    
+    .about-img-4 {
+        width: 115px;
+        height: 115px;
+    }
+    
+    .about-img-5 {
+        width: 105px;
+        height: 105px;
+    }
+    
+    .circle-1 {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .circle-2 {
+        width: 95px;
+        height: 95px;
+    }
+    
+    .about-bg-text {
+        font-size: 110px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-section {
+        padding: 80px 0;
+    }
+    
+    .about-heading {
+        font-size: 36px;
+        margin-bottom: 40px;
+    }
+    
+    .about-images {
+        max-width: 550px;
+        height: 350px;
+    }
+    
+    .about-img-1 {
+        width: 110px;
+        height: 110px;
+        border-radius: 24px;
+    }
+    
+    .about-img-2 {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+    }
+    
+    .about-img-3 {
+        width: 245px;
+        height: 305px;
+        margin-left: -122.5px;
+        margin-top: -152.5px;
+        padding: 14px;
+        border-radius: 20px;
+    }
+    
+    .about-img-3 img {
+        border-radius: 16px;
+    }
+    
+    .about-img-4 {
+        width: 88px;
+        height: 88px;
+        border-radius: 21px;
+    }
+    
+    .about-img-5 {
+        width: 80px;
+        height: 80px;
+        border-radius: 19px;
+    }
+    
+    .circle-1 {
+        width: 43px;
+        height: 43px;
+    }
+    
+    .circle-2 {
+        width: 73px;
+        height: 73px;
+    }
+    
+    .about-decoration-dot {
+        width: 7px;
+        height: 7px;
+    }
+    
+    .dot-1, .dot-2, .dot-5, .dot-8 {
+        width: 7px;
+        height: 7px;
+    }
+    
+    .dot-3, .dot-6, .dot-7, .dot-9 {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .dot-4 {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .dot-10 {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .about-bg-text {
+        font-size: 85px;
+    }
+    
+    .about-description {
+        font-size: 16px;
+    }
+    
+    .about-subdescription {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-section {
+        padding: 60px 0;
+    }
+    
+    .about-heading {
+        font-size: 28px;
+    }
+    
+    .about-images {
+        max-width: 400px;
+        height: 300px;
+    }
+    
+    .about-img-1 {
+        width: 75px;
+        height: 75px;
+        border-radius: 18px;
+        left: 2%;
+        top: 18%;
+    }
+    
+    .about-img-2 {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        left: 8%;
+        bottom: 22%;
+    }
+    
+    .about-img-3 {
+        width: 160px;
+        height: 200px;
+        margin-left: -80px;
+        margin-top: -100px;
+        padding: 10px;
+        border-radius: 15px;
+    }
+    
+    .about-img-3 img {
+        border-radius: 12px;
+    }
+    
+    .about-img-4 {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        right: 3%;
+        top: 20%;
+    }
+    
+    .about-img-5 {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        right: 6%;
+        bottom: 18%;
+    }
+    
+    .circle-1 {
+        width: 31px;
+        height: 31px;
+    }
+    
+    .circle-2 {
+        width: 53px;
+        height: 53px;
+    }
+    
+    .about-decoration-dot {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .dot-1, .dot-2, .dot-5, .dot-8 {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .dot-3, .dot-6, .dot-7, .dot-9 {
+        width: 3px;
+        height: 3px;
+    }
+    
+    .dot-4 {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .dot-10 {
+        width: 4px;
+        height: 4px;
+    }
+    
+    .about-bg-text {
+        font-size: 62px;
+    }
+    
+    .about-description {
+        font-size: 15px;
+    }
+    
+    .about-subdescription {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 375px) {
+    .about-section {
+        padding: 50px 0;
+    }
+    
+    .about-heading {
+        font-size: 26px;
+    }
+    
+    .about-images {
+        max-width: 340px;
+        height: 250px;
+    }
+    
+    .about-img-1 {
+        width: 62px;
+        height: 62px;
+        border-radius: 15px;
+        left: 3%;
+        top: 18%;
+    }
+    
+    .about-img-2 {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        left: 10%;
+        bottom: 24%;
+    }
+    
+    .about-img-3 {
+        width: 140px;
+        height: 175px;
+        margin-left: -70px;
+        margin-top: -87.5px;
+        padding: 8px;
+        border-radius: 13px;
+    }
+    
+    .about-img-3 img {
+        border-radius: 10px;
+    }
+    
+    .about-img-4 {
+        width: 50px;
+        height: 50px;
+        border-radius: 13px;
+        right: 4%;
+        top: 22%;
+    }
+    
+    .about-img-5 {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        right: 8%;
+        bottom: 20%;
+    }
+    
+    .circle-1 {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .circle-2 {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .about-bg-text {
+        font-size: 52px;
+    }
+    
+    .about-description {
+        font-size: 14px;
+    }
+    
+    .about-subdescription {
+        font-size: 12px;
+    }
+}

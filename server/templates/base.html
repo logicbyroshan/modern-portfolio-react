@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <title>{% block title %}Portfolio Admin Panel{% endblock %}</title>
+    <!-- CSS Links -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="app-wrapper">
+        <div class="dashboard-container" id="dashboard-container">
+            
+            <!-- ===== Sidebar ===== -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <div class="logo-icon"><img src="{% static 'images/logo.png' %}" alt="Logo"></div>
+                        <span class="logo-text">Dev Panel</span>
+                    </div>
+                </div>
+                
+                <nav class="nav-menu">
+                    <div class="nav-item {% block nav_dashboard %}{% endblock %}">
+                        <a href="{% url 'dashboard' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item {% block nav_projects %}{% endblock %}">
+                        <a href="{% url 'manage_projects' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-project-diagram"></i></div>
+                            <span class="nav-text">Manage Projects</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item {% block nav_experience %}{% endblock %}">
+                        <a href="{% url 'manage_experience' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-briefcase"></i></div>
+                            <span class="nav-text">Manage Experience</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item {% block nav_skills %}{% endblock %}">
+                        <a href="{% url 'manage_skills' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-tools"></i></div>
+                            <span class="nav-text">Manage Skills</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item {% block nav_achievements %}{% endblock %}">
+                        <a href="{% url 'manage_achievements' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+                            <span class="nav-text">Manage Achievements</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item {% block nav_categories %}{% endblock %}">
+                        <a href="{% url 'manage_categories' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-tags"></i></div>
+                            <span class="nav-text">Manage Categories</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item {% block nav_details %}{% endblock %}">
+                        <a href="{% url 'manage_details' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-info-circle"></i></div>
+                            <span class="nav-text">Manage Details</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a href="{% url 'api_documentation' %}" class="nav-link">
+                            <div class="nav-icon"><i class="fas fa-book"></i></div>
+                            <span class="nav-text">API Docs</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div class="sidebar-bottom">
+                    <div class="nav-item"><a href="/admin/" class="nav-link"><div class="nav-icon"><i class="fas fa-cog"></i></div><span class="nav-text">Settings</span></a></div>
+                </div>
+            </aside>
+
+            <!-- Mobile Overlay -->
+            <div class="mobile-overlay" id="mobile-overlay"></div>
+
+            <!-- ===== Main Content Area ===== -->
+            <main class="main-content">
+                <header class="navbar">
+                    <div class="navbar-left">
+                        <button class="mobile-menu-btn" id="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+                        {% block navbar_left %}
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-bar" placeholder="Search projects, skills, achievements...">
+                        </div>
+                        {% endblock %}
+                    </div>
+                    <div class="navbar-right">
+                        <div class="date-tag" id="current-date"></div>
+                        
+                        <!-- Logout Button -->
+                        <button class="logout-btn" onclick="window.location.href='/admin/logout/';" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                        
+                        <div class="user-profile">
+                            <div class="user-avatar">A</div>
+                            {% block user_info %}
+                            <div class="user-info">
+                                <h4>Admin</h4>
+                                <p>Developer</p>
+                            </div>
+                            {% endblock %}
+                        </div>
+                    </div>
+                </header>
+
+                <div class="page-content">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Django Messages as Notifications -->
+    {% if messages %}
+        <div id="django-messages" style="display: none;">
+            {% for message in messages %}
+                <div class="message-item" data-type="{{ message.tags }}" data-message="{{ message }}"></div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block modals %}{% endblock %}
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Date display functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElement = document.getElementById('current-date');
+            if (dateElement) {
+                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                const currentDate = new Date().toLocaleDateString('en-US', options);
+                dateElement.textContent = currentDate;
+            }
+
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobile-overlay');
+            
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    mobileOverlay.classList.toggle('active');
+                });
+            }
+            
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    mobileOverlay.classList.remove('active');
+                });
+            }
+
+            // Particles.js initialization
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: '#ffffff' },
+                        opacity: { value: 0.5, random: false },
+                        size: { value: 3, random: true },
+                        line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.4, width: 1 },
+                        move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+                    },
+                    interactivity: {
+                        detect_on: 'canvas',
+                        events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                        modes: { repulse: { distance: 100, duration: 0.4 }, push: { particles_nb: 4 } }
+                    },
+                    retina_detect: true
+                });
+            }
+        });
+
+        // Initialize TinyMCE if present on page
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.init({
+                    selector: '.tinymce-editor',
+                    height: 400,
+                    menubar: false,
+                    skin: 'oxide-dark',
+                    content_css: 'dark',
+                    plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                    ],
+                    toolbar: 'undo redo | blocks | ' +
+                        'bold italic forecolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'removeformat | help',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; background-color: #1a1a2e; color: #e0e0e0; }'
+                });
+            }
+        });
+    </script>
+
+    <!-- Show Django Messages as Notifications -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('django-messages');
+            if (messagesContainer) {
+                const messageItems = messagesContainer.querySelectorAll('.message-item');
+                messageItems.forEach((item, index) => {
+                    setTimeout(() => {
+                        showNotification(item.dataset.message, item.dataset.type);
+                    }, index * 200);
+                });
+            }
+        });
+
+        function showNotification(message, type = 'success') {
+            // Map Django message tags to notification types
+            const typeMap = {
+                'success': 'success',
+                'error': 'error',
+                'warning': 'error',
+                'info': 'success'
+            };
+            const notificationType = typeMap[type] || 'success';
+            
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${notificationType}`;
+            notification.innerHTML = `
+                <i class="fas fa-${notificationType === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Force reflow to enable transition
+            void notification.offsetWidth;
+            
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+
+    <script src="{% static 'js/dev.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

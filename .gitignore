@@ -1,0 +1,22 @@
+.venv/
+
+# Node
+node_modules/
+client/node_modules/
+client/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+server/.env
+client/.env
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/

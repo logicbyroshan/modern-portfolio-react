@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Skills - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list-common.css' %}">
+<link rel="stylesheet" href="{% static 'css/manage-skills.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/view-all-skills.css' %}?v=4">
+{% endblock %}
+
+{% block nav_skills %}active{% endblock %}
+
+{% block navbar_left %}
+<h1 class="page-title">All Skills</h1>
+{% endblock %}
+
+{% block user_info %}{% endblock %}
+
+{% block content %}
+<div class="page-actions-header">
+    <a href="{% url 'create_skill' %}" class="btn-primary">
+        <i class="fas fa-plus-circle"></i> Add New Skill
+    </a>
+</div>
+
+<div class="filter-bar section-card">
+    <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search by skill name...">
+    </div>
+    <div class="filter-controls">
+        <div class="filter-group">
+            <a href="{% url 'list_skills' %}" class="filter-btn {% if not current_filter or current_filter == 'all' %}active{% endif %}">
+                All <span class="count">({{ total_count }})</span>
+            </a>
+            <a href="{% url 'list_skills' %}?filter=draft" class="filter-btn {% if current_filter == 'draft' %}active{% endif %}">
+                Draft <span class="count">({{ draft_count }})</span>
+            </a>
+        </div>
+        <div class="sort-group">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select">
+                <option value="proficiency">Highest Proficiency</option>
+                <option value="lowest">Lowest Proficiency</option>
+                <option value="name-az">Name (A-Z)</option>
+                <option value="name-za">Name (Z-A)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="skills-grid" id="all-skills-grid">
+    {% for skill in skills %}
+    <div class="skill-card {% if skill.is_draft %}draft{% endif %} fade-in {% if not skill.is_active %}inactive{% endif %}" 
+         data-status="{% if skill.is_draft %}draft{% else %}active{% endif %}" 
+         data-title="{{ skill.name }}" 
+         data-proficiency="{{ skill.proficiency }}"
+         data-skill-id="{{ skill.id }}">
+        <div class="skill-header">
+            <h4>{{ skill.name }}</h4>
+            <span class="skill-percentage">{{ skill.proficiency }}%</span>
+        </div>
+        <div class="skill-bar">
+            <div class="skill-progress" style="width: {{ skill.proficiency }}%;"></div>
+        </div>
+        <div class="skill-meta">
+            <span class="skill-level-badge {{ skill.skill_level }}">{{ skill.get_skill_level_display }}</span>
+            {% if skill.is_draft %}
+            <span class="status-badge status-draft">Draft</span>
+            {% endif %}
+        </div>
+        <div class="skill-actions">
+            <label class="toggle-switch">
+                <input type="checkbox" class="skill-toggle" data-skill-id="{{ skill.id }}" {% if skill.is_active %}checked{% endif %}>
+                <span class="slider"></span>
+            </label>
+            <div class="action-buttons">
+                <a href="{% url 'edit_skill' skill.id %}" class="btn-icon btn-edit">
+                    <i class="fas fa-pencil-alt"></i> Edit
+                </a>
+                <button type="button" class="btn-icon btn-delete" data-skill-id="{{ skill.id }}" data-skill-name="{{ skill.name }}">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i class="fas fa-code"></i>
+        <p>No skills found{% if current_filter != 'all' %} with filter "{{ current_filter }}"{% endif %}.</p>
+        <a href="{% url 'create_skill' %}" class="btn-primary">
+            <i class="fas fa-plus-circle"></i> Add Skill
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="no-results" id="no-results" style="display: none;">
+    <i class="fas fa-search"></i>
+    <p>No skills found matching your criteria.</p>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Confirm Deletion</h2></div>
+        <div class="modal-body"><p>Are you sure you want to permanently delete this skill? This action cannot be undone.</p></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+            <button type="button" class="btn-danger" id="modal-confirm-btn">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/view-all-skills.js' %}?v=2"></script>
+{% endblock %}

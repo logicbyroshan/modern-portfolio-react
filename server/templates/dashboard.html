@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Admin Panel - Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dev.css' %}">
+{% endblock %}
+
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<!-- Quick Look Stats -->
+<div class="stats-grid">
+    <div class="stat-card fade-in">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);"><i class="fas fa-project-diagram"></i></div>
+        <div class="stat-info">
+            <p class="stat-title">Total Projects</p>
+            <span class="stat-value">{{ total_projects }}</span>
+        </div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Active</span></div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+       <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fas fa-briefcase"></i></div>
+        <div class="stat-info">
+            <p class="stat-title">Total Experience</p>
+            <span class="stat-value">{{ total_experience }}</span>
+        </div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Active</span></div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fas fa-trophy"></i></div>
+        <div class="stat-info">
+            <p class="stat-title">Total Achievements</p>
+            <span class="stat-value">{{ total_achievements }}</span>
+        </div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Active</span></div>
+    </div>
+    <div class="stat-card fade-in" style="animation-delay: 0.3s;">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"><i class="fas fa-tools"></i></div>
+        <div class="stat-info">
+            <p class="stat-title">Total Skills</p>
+            <span class="stat-value">{{ total_skills }}</span>
+        </div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i><span>Active</span></div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="section-card fade-in">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="actions-grid">
+        <a href="{% url 'create_project' %}" class="action-btn"><i class="fas fa-plus-circle"></i><span>New Project</span></a>
+        <a href="{% url 'create_experience' %}" class="action-btn"><i class="fas fa-briefcase"></i><span>Add Experience</span></a>
+        <a href="{% url 'create_achievement' %}" class="action-btn"><i class="fas fa-trophy"></i><span>Add Achievement</span></a>
+        <a href="{% url 'create_skill' %}" class="action-btn"><i class="fas fa-plus"></i><span>Add Skill</span></a>
+    </div>
+</div>
+
+<div class="content-grid">
+    <div class="main-column">
+        <!-- Recent Projects -->
+        <div class="section-card fade-in">
+            <div class="section-header">
+                <h2 class="section-title">Recent Projects</h2>
+                <a href="{% url 'manage_projects' %}" class="view-all-btn">
+                    <span>View All</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="projects-list">
+                {% if recent_projects %}
+                    {% for project in recent_projects|slice:":3" %}
+                    <div class="list-item">
+                        <div class="list-item-info">
+                            <h3 class="list-item-title">{{ project.title }}</h3>
+                            <p class="list-item-meta">
+                                {% if project.technologies %}Technologies: {{ project.technologies }} | {% endif %}
+                                Status: {{ project.get_status_display }}
+                            </p>
+                        </div>
+                        <div class="list-item-actions">
+                            <a href="{% url 'edit_project' project.id %}" class="btn-icon btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
+                            <button class="btn-icon btn-delete" onclick="deleteProject({{ project.id }})"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data">No projects yet. <a href="{% url 'create_project' %}">Create your first project</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Achievements -->
+        <div class="section-card fade-in">
+            <div class="section-header">
+                <h2 class="section-title">Recent Achievements</h2>
+                <a href="{% url 'manage_achievements' %}" class="view-all-btn">
+                    <span>View All</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="achievements-list">
+                {% if recent_achievements %}
+                    {% for achievement in recent_achievements|slice:":3" %}
+                    <div class="list-item">
+                        <div class="list-item-info">
+                            <h3 class="list-item-title">{{ achievement.title }}</h3>
+                            <p class="list-item-meta">
+                                {% if achievement.issuing_organization %}Issued by: {{ achievement.issuing_organization }} | {% endif %}
+                                Date: {{ achievement.achievement_date|date:"F Y" }}
+                            </p>
+                        </div>
+                        <div class="list-item-actions">
+                            <a href="{% url 'edit_achievement' achievement.id %}" class="btn-icon btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
+                            <button class="btn-icon btn-delete" onclick="deleteAchievement('{{ achievement.id }}')"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data">No achievements yet. <a href="{% url 'create_achievement' %}">Add your first achievement</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills Categories (Right Column) -->
+    <div class="section-card fade-in skills-card">
+        <div class="section-header">
+            <h2 class="section-title">Top Skills</h2>
+            <a href="{% url 'manage_skills' %}" class="view-all-btn">
+                <span>View All</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="skills-list">
+            {% if top_skills %}
+                {% for skill in top_skills %}
+                <div class="skill-item">
+                    <div class="skill-info">
+                        <span class="skill-name">{{ skill.name }}</span>
+                        <span class="skill-level">{{ skill.proficiency }}%</span>
+                    </div>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-proficiency="{{ skill.proficiency }}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">No skills added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div class="section-card fade-in categories-card">
+        <div class="section-header">
+            <h2 class="section-title">Categories</h2>
+            <a href="{% url 'manage_categories' %}" class="view-all-btn">
+                <span>Manage Categories</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="categories-compact">
+            {% if category_counts %}
+                {% for cat in category_counts %}
+                <div class="category-item">
+                    <div class="category-icon-small" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                        <i class="fas fa-{{ cat.category__icon|default:'folder' }}"></i>
+                    </div>
+                    <div class="category-info-small">
+                        <h5>{{ cat.category__name }}</h5>
+                        <span>{{ cat.count }} Project{{ cat.count|pluralize }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="no-data">No project categories yet. <a href="{% url 'manage_categories' %}">Create categories</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Analytics -->
+    <div class="section-card fade-in analytics-quick">
+        <div class="section-header">
+            <h2 class="section-title">Quick Stats</h2>
+        </div>
+        <div class="analytics-compact">
+            <div class="analytics-item">
+                <i class="fas fa-eye" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">128K</span>
+                    <span class="analytics-label">Page Views</span>
+                </div>
+            </div>
+            <div class="analytics-item">
+                <i class="fas fa-users" style="background: linear-gradient(135deg, #10b981, #059669);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">45.9K</span>
+                    <span class="analytics-label">New Visitors</span>
+                </div>
+            </div>
+            <div class="analytics-item">
+                <i class="fas fa-file-alt" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">8,542</span>
+                    <span class="analytics-label">Resume Views</span>
+                </div>
+            </div>
+            <div class="analytics-item">
+                <i class="fas fa-download" style="background: linear-gradient(135deg, #f59e0b, #d97706);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">1,234</span>
+                    <span class="analytics-label">Resume Downloads</span>
+                </div>
+            </div>
+            <div class="analytics-item">
+                <i class="fas fa-chart-line" style="background: linear-gradient(135deg, #ef4444, #dc2626);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">42.3%</span>
+                    <span class="analytics-label">Bounce Rate</span>
+                </div>
+            </div>
+            <div class="analytics-item">
+                <i class="fas fa-envelope" style="background: linear-gradient(135deg, #ec4899, #db2777);"></i>
+                <div class="analytics-info">
+                    <span class="analytics-value">89</span>
+                    <span class="analytics-label">Unread Messages</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dev.js' %}"></script>
+<script>
+    // Animate skill progress bars on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const skillBars = document.querySelectorAll('.skill-progress');
+        skillBars.forEach(bar => {
+            const proficiency = bar.getAttribute('data-proficiency');
+            bar.style.width = '0%';
+            bar.style.transition = 'width 0.3s ease';
+            setTimeout(() => {
+                bar.style.width = proficiency + '%';
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

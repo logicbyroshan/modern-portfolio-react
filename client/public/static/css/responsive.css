@@ -1,0 +1,638 @@
+/* ========================================
+   RESPONSIVE STYLES
+   Note: Loaded last in index.html so these rules
+   can safely override section-level styles.
+   ======================================== */
+
+/* Desktop-laptop refinement (below 1280px) */
+@media screen and (max-width: 1279px) {
+    .container {
+        padding: 0 18px;
+    }
+
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: 86px;
+        padding-bottom: 86px;
+    }
+
+    .hero-container {
+        padding: 0 18px;
+    }
+
+    .hero-grid {
+        gap: 36px;
+    }
+
+    .hero-content {
+        padding-top: 140px;
+    }
+
+    /* Requested: hero font should be smaller below 1280 */
+    .hero-heading {
+        font-size: 52px;
+        line-height: 1.12;
+    }
+
+    .hero-description {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    /* Requested: hero image a little smaller */
+    .hero-image {
+        max-width: 82%;
+        margin-bottom: -48px;
+    }
+
+    .nft-card {
+        padding: 22px;
+    }
+
+    .nft-card-title {
+        font-size: 18px;
+    }
+
+    .nft-bid-amount,
+    .countdown-value {
+        font-size: 21px;
+    }
+
+    .nft-label,
+    .nft-bid-usd {
+        font-size: 12px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 42px;
+        line-height: 1.22;
+    }
+
+    .projects-intro,
+    .faq-description,
+    .about-description,
+    .contact-value,
+    .roadmap-description,
+    .project-description,
+    .blog-date {
+        font-size: 15px;
+    }
+
+    .about-subdescription,
+    .skills-list li,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li {
+        font-size: 14px;
+    }
+
+    .stat-number {
+        font-size: 34px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+}
+
+/* Tablet portrait + small laptop (1280 -> 999 target band) */
+@media screen and (max-width: 999px) {
+    /* Use mobile navbar layout for tablet widths to avoid desktop crowding */
+    .navbar-desktop {
+        display: none;
+    }
+
+    .navbar-mobile {
+        display: block;
+    }
+
+    .navbar {
+        padding: 16px 0;
+    }
+
+    .nav-menu {
+        gap: 18px;
+    }
+
+    .nav-link {
+        font-size: 14px;
+    }
+
+    .logo-image {
+        height: 40px;
+    }
+
+    .btn-nav,
+    .nav-actions .btn-primary {
+        padding: 11px 18px !important;
+        font-size: 13px !important;
+    }
+
+    .hero-section {
+        padding-top: 104px;
+        padding-bottom: 64px;
+        min-height: auto;
+    }
+
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 44px;
+    }
+
+    .hero-visual-wrapper {
+        order: -1;
+        align-items: center;
+        margin-bottom: 16px;
+        width: 100%;
+    }
+
+    .hero-content {
+        order: 1;
+        padding-top: 0;
+    }
+
+    /* Requested: noticeably smaller hero text in this range */
+    .hero-heading {
+        font-size: 44px;
+        text-align: center;
+    }
+
+    .hero-description {
+        font-size: 14px;
+        text-align: center;
+        max-width: 680px;
+        margin: 0 auto 28px;
+    }
+
+    .hero-btn-group {
+        justify-content: center;
+        margin-bottom: 36px;
+    }
+
+    .hero-stats {
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .stat-item {
+        padding: 0 16px;
+    }
+
+    .stat-item:not(:last-child)::after {
+        right: -10px;
+        height: 42px;
+    }
+
+    .stat-number {
+        font-size: 28px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        letter-spacing: 0.4px;
+    }
+
+    /* Requested: hero image smaller */
+    .hero-image {
+        max-width: 72%;
+        margin-bottom: -34px;
+    }
+
+    .nft-card {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .nft-info-row {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .nft-countdown {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .countdown-item {
+        min-width: 68px;
+        padding: 0 6px;
+    }
+
+    .countdown-item:not(:last-child)::after {
+        display: none;
+    }
+
+    .countdown-label {
+        font-size: 10px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 36px;
+    }
+
+    .about-description,
+    .projects-intro,
+    .faq-description,
+    .project-description,
+    .roadmap-description,
+    .contact-value,
+    .blog-date {
+        font-size: 14px;
+    }
+
+    .about-subdescription,
+    .skills-list li,
+    .faq-answer p,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li {
+        font-size: 13px;
+    }
+
+    .project-title {
+        font-size: 30px;
+    }
+
+    /* Keep project image proportion consistent with desktop cards */
+    .project-image {
+        height: auto;
+        aspect-ratio: 14 / 9;
+    }
+
+    .project-image img {
+        height: 100%;
+    }
+
+    /* Roadmap: prevent stacked-card overlap in tablet widths */
+    .roadmap-timeline {
+        padding: 8px 0;
+        margin-bottom: 24px;
+    }
+
+    .roadmap-item {
+        margin-bottom: 26px;
+        padding-left: 56px;
+        padding-right: 16px;
+    }
+
+    .roadmap-card {
+        min-height: auto;
+        padding: 26px 22px;
+    }
+
+    .roadmap-date {
+        position: static;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    .roadmap-title {
+        margin-top: 0;
+    }
+
+    .roadmap-description {
+        margin-top: 8px;
+    }
+
+    .contact-wrapper {
+        padding: 34px;
+        gap: 34px;
+    }
+}
+
+/* Large phones / compact tablets */
+@media screen and (max-width: 767px) {
+    .navbar-desktop {
+        display: none;
+    }
+
+    .navbar-mobile {
+        display: block;
+    }
+
+    .navbar {
+        padding: 12px 0;
+    }
+
+    .logo-image {
+        height: 34px;
+    }
+
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: 62px;
+        padding-bottom: 62px;
+    }
+
+    .hero-container,
+    .container {
+        padding: 0 16px;
+    }
+
+    .hero-heading {
+        font-size: 34px;
+        line-height: 1.2;
+    }
+
+    .hero-description {
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .hero-btn-group {
+        gap: 10px;
+        margin-bottom: 28px;
+        align-items: stretch;
+    }
+
+    .hero-btn-group .btn {
+        width: 100%;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 13px 18px;
+        border-radius: 12px;
+    }
+
+    .hero-image {
+        max-width: 76%;
+        margin-bottom: -24px;
+    }
+
+    .nft-countdown {
+        justify-content: center;
+    }
+
+    .nft-card {
+        padding: 18px;
+    }
+
+    .nft-card-title {
+        font-size: 16px;
+    }
+
+    .nft-bid-amount,
+    .countdown-value {
+        font-size: 17px;
+    }
+
+    .nft-label,
+    .nft-bid-usd,
+    .countdown-label {
+        font-size: 11px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 30px;
+        margin-bottom: 28px;
+    }
+
+    .projects-intro,
+    .about-description,
+    .faq-description,
+    .project-description,
+    .roadmap-description,
+    .contact-value,
+    .blog-date {
+        font-size: 13px;
+    }
+
+    .about-subdescription,
+    .skills-list li,
+    .faq-answer p,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li,
+    .footer-copy,
+    .footer-made {
+        font-size: 12px;
+    }
+
+    .project-card,
+    .contact-wrapper,
+    .modal-box {
+        border-radius: 16px;
+    }
+
+    .project-title {
+        font-size: 24px;
+    }
+
+    .project-category {
+        font-size: 11px;
+        padding: 5px 12px;
+    }
+
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn {
+        width: 42px;
+        height: 42px;
+    }
+
+    /* Roadmap mobile centering: remove tablet left gutter offset */
+    .roadmap-timeline {
+        margin: 0;
+        padding: 0;
+    }
+
+    .roadmap-item {
+        width: 100%;
+        left: 0 !important;
+        margin-bottom: 22px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .roadmap-card {
+        width: 100%;
+        margin: 0;
+        padding: 30px 20px;
+    }
+}
+
+/* Phone baseline */
+@media screen and (max-width: 480px) {
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .hero-container,
+    .container {
+        padding: 0 14px;
+    }
+
+    .hero-heading {
+        font-size: 28px;
+    }
+
+    .hero-description {
+        font-size: 12px;
+    }
+
+    .hero-btn-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-image {
+        max-width: 74%;
+        margin-bottom: -16px;
+    }
+
+    .nft-countdown {
+        justify-content: space-between;
+    }
+
+    .stat-number {
+        font-size: 22px;
+    }
+
+    .stat-label,
+    .countdown-label {
+        font-size: 11px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 26px;
+    }
+
+    .project-title {
+        font-size: 21px;
+    }
+
+    .project-btn,
+    .form-submit-btn,
+    .chat-send-btn {
+        font-size: 13px;
+    }
+}
+
+/* Very small phones */
+@media screen and (max-width: 375px) {
+    .hero-heading {
+        font-size: 24px;
+    }
+
+    .hero-description,
+    .projects-intro,
+    .about-description,
+    .faq-description,
+    .project-description,
+    .roadmap-description,
+    .contact-value,
+    .blog-date,
+    .about-subdescription,
+    .skills-list li,
+    .faq-answer p,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li,
+    .footer-copy,
+    .footer-made {
+        font-size: 12px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 23px;
+    }
+
+    .hero-image {
+        max-width: 72%;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn {
+        font-size: 12px;
+        padding: 12px 14px;
+    }
+}
+
+/* 320px floor */
+@media screen and (max-width: 320px) {
+    .container,
+    .hero-container {
+        padding: 0 10px;
+    }
+
+    .hero-heading {
+        font-size: 22px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        font-size: 21px;
+    }
+
+    .hero-image {
+        max-width: 70%;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn {
+        font-size: 11px;
+        padding: 11px 12px;
+    }
+}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Skills - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/manage-skills.css' %}?v=4">
+{% endblock %}
+
+{% block nav_skills %}active{% endblock %}
+
+{% block navbar_left %}
+<h1 class="page-title">Manage Skills</h1>
+{% endblock %}
+
+{% block user_info %}{% endblock %}
+
+{% block content %}
+<div class="page-actions-header">
+    <a href="{% url 'create_skill' %}" class="btn-primary">
+        <i class="fas fa-plus-circle"></i> Add New Skill
+    </a>
+</div>
+
+<section class="section-card fade-in">
+    <div class="section-header">
+        <h2>Recent Skills <span class="blog-count">({{ total_count }})</span></h2>
+        <a href="{% url 'list_skills' %}" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="skills-grid">
+        {% for skill in recent_skills %}
+        <div class="skill-card {% if skill.is_draft %}draft{% endif %} {% if not skill.is_active %}inactive{% endif %}" data-skill-id="{{ skill.id }}">
+            <div class="skill-header">
+                <h4>{{ skill.name }}</h4>
+                <span class="skill-percentage">{{ skill.proficiency }}%</span>
+            </div>
+            <div class="skill-bar">
+                <div class="skill-progress" style="width: {{ skill.proficiency }}%;"></div>
+            </div>
+            <div class="skill-meta">
+                <span class="skill-level-badge {{ skill.skill_level }}">{{ skill.get_skill_level_display }}</span>
+                {% if skill.is_draft %}
+                <span class="status-badge draft">Draft</span>
+                {% endif %}
+            </div>
+            <div class="skill-actions">
+                <label class="toggle-switch">
+                    <input type="checkbox" class="skill-toggle" data-skill-id="{{ skill.id }}" {% if skill.is_active %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+                <div class="action-buttons">
+                    <a href="{% url 'edit_skill' skill.id %}" class="btn-icon btn-edit">
+                        <i class="fas fa-pencil-alt"></i> Edit
+                    </a>
+                    <button type="button" class="btn-icon btn-delete" data-skill-id="{{ skill.id }}" data-skill-name="{{ skill.name }}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-code"></i>
+            <p>No skills yet. Add your first skill!</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block modals %}
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Confirm Deletion</h2></div>
+        <div class="modal-body"><p>Are you sure you want to permanently delete this skill? This action cannot be undone.</p></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+            <button type="button" class="btn-danger" id="modal-confirm-btn">Delete</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/manage-skills.js' %}?v=2"></script>
+{% endblock %}

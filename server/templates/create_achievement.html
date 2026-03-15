@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Achievement - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/create-common.css' %}">
+<link rel="stylesheet" href="{% static 'css/create-achievement.css' %}?v=1">
+<script src="https://cdn.tiny.cloud/1/{{ tinymce_api_key }}/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{% endblock %}
+
+{% block nav_achievements %}active{% endblock %}
+
+{% block navbar_left %}
+<h1 class="page-title">{% if form.instance.pk %}Edit{% else %}Create New{% endif %} Achievement</h1>
+{% endblock %}
+
+{% block user_info %}{% endblock %}
+
+{% block content %}
+<div class="back-navigation">
+    <a href="{% url 'manage_achievements' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Achievements
+    </a>
+</div>
+
+<form class="create-form" id="create-achievement-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-info-circle"></i> Achievement Information</h2>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-tag"></i> Category *
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <span class="error-message">{{ form.category.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-calendar-alt"></i> Achievement Date *
+                </label>
+                {{ form.achievement_date }}
+                {% if form.achievement_date.errors %}
+                    <span class="error-message">{{ form.achievement_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-trophy"></i> Achievement Title *
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <span class="error-message">{{ form.title.errors.0 }}</span>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-building"></i> Issuing Organization *
+            </label>
+            {{ form.issuing_organization }}
+            {% if form.issuing_organization.errors %}
+                <span class="error-message">{{ form.issuing_organization.errors.0 }}</span>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-align-left"></i> Short Description *
+            </label>
+            {{ form.short_description }}
+            <small class="form-hint">Brief description of the achievement</small>
+            {% if form.short_description.errors %}
+                <span class="error-message">{{ form.short_description.errors.0 }}</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-file-certificate"></i> Credential Information <span class="optional-badge">Optional</span></h2>
+        </div>
+        <div class="credential-method">
+            <label class="radio-label">
+                <input type="radio" name="credential_method" value="file" checked>
+                <span><i class="fas fa-file-upload"></i> Upload Certificate/Document</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="credential_method" value="link">
+                <span><i class="fas fa-link"></i> Credential Link/URL</span>
+            </label>
+        </div>
+        
+        <!-- Hidden form field -->
+        {{ form.credential_type }}
+        
+        <div class="credential-file-section" id="credential-file-section">
+            {{ form.credential_file }}
+            <div class="file-upload-area" id="credential-upload">
+                <i class="fas fa-file-upload"></i>
+                <p>Click to upload credential document</p>
+                <span class="file-info">PDF, JPG, PNG (Max 5MB)</span>
+            </div>
+            <div class="preview-container" id="credential-preview"></div>
+            {% if form.credential_file.errors %}
+                <span class="error-message">{{ form.credential_file.errors.0 }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="credential-link-section" id="credential-link-section" style="display: none;">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-link"></i> Credential URL
+                </label>
+                {{ form.credential_url }}
+                <small class="form-hint">e.g., https://credentials.example.com/verify/123456</small>
+                {% if form.credential_url.errors %}
+                    <span class="error-message">{{ form.credential_url.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-fingerprint"></i> Credential ID
+                </label>
+                {{ form.credential_id }}
+                {% if form.credential_id.errors %}
+                    <span class="error-message">{{ form.credential_id.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-clock"></i> Additional Information <span class="optional-badge">Optional</span></h2>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-calendar-times"></i> Expiration Date
+                </label>
+                {{ form.expiration_date }}
+                <small class="form-hint">Leave empty if the achievement doesn't expire</small>
+                {% if form.expiration_date.errors %}
+                    <span class="error-message">{{ form.expiration_date.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    {{ form.no_expiration }}
+                    <span>This achievement never expires</span>
+                </label>
+                {% if form.no_expiration.errors %}
+                    <span class="error-message">{{ form.no_expiration.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-link"></i> Related Link
+            </label>
+            {{ form.related_link }}
+            <small class="form-hint">Optional link to achievement details or related content</small>
+            {% if form.related_link.errors %}
+                <span class="error-message">{{ form.related_link.errors.0 }}</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-file-alt"></i> Detailed Description <span class="optional-badge">Optional</span></h2>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-align-left"></i> Full Description
+            </label>
+            {{ form.full_description }}
+            <small class="form-hint">Detailed description, skills demonstrated, and any additional information</small>
+            {% if form.full_description.errors %}
+                <span class="error-message">{{ form.full_description.errors.0 }}</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-cog"></i> Publication Settings</h2>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-sort-numeric-down"></i> Display Order
+            </label>
+            {{ form.order }}
+            <small class="form-hint">Lower numbers appear first (0 = highest priority)</small>
+            {% if form.order.errors %}
+                <span class="error-message">{{ form.order.errors.0 }}</span>
+            {% endif %}
+        </div>
+        
+        <!-- Hidden checkboxes for form submission, controlled by buttons -->
+        {{ form.is_active }}
+        {{ form.is_draft }}
+    </section>
+
+    <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="window.history.back()">Cancel</button>
+        <button type="submit" name="action" value="draft" class="btn-secondary">Save as Draft</button>
+        <button type="submit" name="action" value="publish" class="btn-primary">{% if form.instance.pk %}Update{% else %}Publish{% endif %} Achievement</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/create-achievement.js' %}?v=1"></script>
+{% endblock %}

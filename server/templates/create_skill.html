@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Skill - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/create-common.css' %}">
+<link rel="stylesheet" href="{% static 'css/create-skill.css' %}">
+{% endblock %}
+
+{% block nav_skills %}active{% endblock %}
+
+{% block navbar_left %}
+<h1 class="page-title">Create New Skill</h1>
+{% endblock %}
+
+{% block user_info %}{% endblock %}
+
+{% block content %}
+<div class="back-navigation">
+    <a href="{% url 'manage_skills' %}" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Skills
+    </a>
+</div>
+
+<form class="create-form" id="create-skill-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if form.errors %}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        Please correct the errors below.
+    </div>
+    {% endif %}
+    
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-info-circle"></i> Skill Information</h2>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-code"></i> Skill Name *
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <span class="error-message">{{ form.name.errors.0 }}</span>
+            {% endif %}
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-layer-group"></i> Skill Level *
+                </label>
+                {{ form.skill_level }}
+                {% if form.skill_level.errors %}
+                    <span class="error-message">{{ form.skill_level.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-chart-line"></i> Proficiency (%) *
+                </label>
+                {{ form.proficiency }}
+                {% if form.proficiency.errors %}
+                    <span class="error-message">{{ form.proficiency.errors.0 }}</span>
+                {% endif %}
+                <div class="proficiency-preview">
+                    <div class="proficiency-bar">
+                        <div class="proficiency-fill" id="proficiency-fill" style="width: 50%;"></div>
+                    </div>
+                    <span class="proficiency-value" id="proficiency-value">50%</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-file-alt"></i> Description <span class="optional-badge">Optional</span>
+            </label>
+            {{ form.description }}
+            <small class="form-hint">Brief description of your skill level or experience</small>
+            {% if form.description.errors %}
+                <span class="error-message">{{ form.description.errors.0 }}</span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-icons"></i> Skill Icon <span class="optional-badge">Optional</span></h2>
+        </div>
+        <div class="icon-selector">
+            <div class="icon-method">
+                <label class="radio-label">
+                    <input type="radio" name="icon_type" value="upload" {% if not form.icon_type.value or form.icon_type.value == 'upload' %}checked{% endif %}>
+                    <span>Upload Custom Icon</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="icon_type" value="fontawesome" {% if form.icon_type.value == 'fontawesome' %}checked{% endif %}>
+                    <span>Use FontAwesome Icon</span>
+                </label>
+            </div>
+            <div class="icon-upload-section" id="icon-upload-section">
+                <div class="file-upload-area" id="icon-upload">
+                    <i class="fas fa-image"></i>
+                    <p>Click to upload skill icon</p>
+                    <span class="file-info">PNG, JPG, SVG (Max 1MB)</span>
+                    {{ form.icon_image }}
+                </div>
+                <div class="preview-container" id="icon-preview"></div>
+                {% if form.icon_image.errors %}
+                    <span class="error-message">{{ form.icon_image.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="icon-fontawesome-section" id="icon-fontawesome-section" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">FontAwesome Class</label>
+                    {{ form.icon_class }}
+                    {% if form.icon_class.errors %}
+                        <span class="error-message">{{ form.icon_class.errors.0 }}</span>
+                    {% endif %}
+                    <div class="fa-icon-preview" id="fa-icon-preview">
+                        <i class="fas fa-question"></i>
+                    </div>
+                </div>
+                <div class="popular-icons">
+                    <p class="section-subtitle">Popular Icons:</p>
+                    <div class="icon-grid">
+                        <div class="icon-option" data-icon="fab fa-js"><i class="fab fa-js"></i></div>
+                        <div class="icon-option" data-icon="fab fa-react"><i class="fab fa-react"></i></div>
+                        <div class="icon-option" data-icon="fab fa-python"><i class="fab fa-python"></i></div>
+                        <div class="icon-option" data-icon="fab fa-node"><i class="fab fa-node"></i></div>
+                        <div class="icon-option" data-icon="fab fa-html5"><i class="fab fa-html5"></i></div>
+                        <div class="icon-option" data-icon="fab fa-css3-alt"><i class="fab fa-css3-alt"></i></div>
+                        <div class="icon-option" data-icon="fab fa-php"><i class="fab fa-php"></i></div>
+                        <div class="icon-option" data-icon="fab fa-java"><i class="fab fa-java"></i></div>
+                        <div class="icon-option" data-icon="fab fa-docker"><i class="fab fa-docker"></i></div>
+                        <div class="icon-option" data-icon="fab fa-aws"><i class="fab fa-aws"></i></div>
+                        <div class="icon-option" data-icon="fas fa-database"><i class="fas fa-database"></i></div>
+                        <div class="icon-option" data-icon="fas fa-code"><i class="fas fa-code"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card fade-in">
+        <div class="section-header">
+            <h2><i class="fas fa-certificate"></i> Certificate <span class="optional-badge">Optional</span></h2>
+        </div>
+        <div class="certificate-method">
+            <label class="radio-label">
+                <input type="radio" name="certificate_type" value="file" {% if not form.certificate_type.value or form.certificate_type.value == 'file' %}checked{% endif %}>
+                <span><i class="fas fa-file-upload"></i> Upload Certificate File</span>
+            </label>
+            <label class="radio-label">
+                <input type="radio" name="certificate_type" value="link" {% if form.certificate_type.value == 'link' %}checked{% endif %}>
+                <span><i class="fas fa-link"></i> Certificate Link</span>
+            </label>
+        </div>
+        <div class="cert-file-section" id="cert-file-section">
+            <div class="file-upload-area" id="cert-upload">
+                <i class="fas fa-certificate"></i>
+                <p>Click to upload certificate</p>
+                <span class="file-info">PDF, JPG, PNG (Max 5MB)</span>
+                {{ form.certificate_file }}
+            </div>
+            <div class="preview-container" id="cert-preview"></div>
+            {% if form.certificate_file.errors %}
+                <span class="error-message">{{ form.certificate_file.errors.0 }}</span>
+            {% endif %}
+        </div>
+        <div class="cert-link-section" id="cert-link-section" style="display: none;">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-link"></i> Certificate URL
+                </label>
+                {{ form.certificate_url }}
+                <small class="form-hint">Link to online certificate (e.g., Coursera, Udemy)</small>
+                {% if form.certificate_url.errors %}
+                    <span class="error-message">{{ form.certificate_url.errors.0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+    
+    <!-- Hidden Fields -->
+    <input type="hidden" name="is_active" value="true">
+    <input type="hidden" name="order" value="0">
+
+    <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="window.history.back()">Cancel</button>
+        <button type="button" class="btn-secondary" name="is_draft" value="true" id="save-draft-btn">Save as Draft</button>
+        <button type="submit" class="btn-primary">Publish Skill</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/create-skill.js' %}"></script>
+{% endblock %}

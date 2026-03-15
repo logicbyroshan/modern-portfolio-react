@@ -1,0 +1,43 @@
+/* ===== View All Projects Page Specific Styles ===== */
+
+/* Common list styles are in list-common.css */
+/* This file contains ONLY project-specific styles */
+
+/* Project-specific status badges */
+.status-badge.status-completed {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.status-badge.status-on-hold {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* No Results Message */
+.no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background: var(--bg-main);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius-lg);
+    margin-top: 2rem;
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-results p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
