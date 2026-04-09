@@ -1,5 +1,9 @@
 node_modules/
 dist/
+.chrome-tmp/
+.lighthouse-reports/
+.lighthouse-tmp/
+lighthouse-*.json
 .env
 .env.*
 !.env.example

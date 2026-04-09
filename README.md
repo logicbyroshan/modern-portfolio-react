@@ -405,15 +405,21 @@ Important backend environment variables:
 
 ```bash
 cd server
+# Create the shared monorepo venv once (skip if it already exists).
 python -m venv ../.venv
-# Windows:
-..\.venv\Scripts\activate
-pip install -r requirements.txt
+# Windows PowerShell:
+& ..\.venv\Scripts\Activate.ps1
+# macOS/Linux:
+# source ../.venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 copy .env.example .env
 python manage.py migrate
 python manage.py createsuperuser
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 127.0.0.1:8000
 ```
+
+The repository uses a single shared virtual environment at `.venv/` in the repo root.
 
 ### 11.3 Frontend Setup
 
@@ -574,12 +580,16 @@ python manage.py check --deploy
 
 ```bash
 cd server
+# Windows PowerShell
+& ..\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 python manage.py check
 python manage.py check --deploy
+python manage.py test
 python manage.py createsuperuser
-python manage.py runserver 0.0.0.0:8000
+python manage.py runserver 127.0.0.1:8000
 ```
 
 ### Frontend
@@ -587,7 +597,10 @@ python manage.py runserver 0.0.0.0:8000
 ```bash
 cd client
 npm install
+copy .env.example .env
 npm run dev -- --host 0.0.0.0 --port 5173
+npm run lint
+npm run test
 npm run build
 npm run preview
 ```

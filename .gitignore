@@ -1,5 +1,11 @@
 .venv/
 
+# Lighthouse / local audit artifacts
+client/.chrome-tmp/
+client/.lighthouse-reports/
+client/.lighthouse-tmp/
+client/lighthouse-*.json
+
 # Node
 node_modules/
 client/node_modules/

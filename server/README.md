@@ -4,6 +4,49 @@ This folder hosts the Django backend that serves:
 - Custom admin panel (template-based)
 - Read-only/public API for client site
 
+## Local setup
+
+```bash
+cd server
+python -m venv ../.venv
+```
+
+Windows PowerShell:
+
+```bash
+& ..\.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+
+```bash
+source ../.venv/bin/activate
+```
+
+Install dependencies and bootstrap settings:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+copy .env.example .env
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver 127.0.0.1:8000
+```
+
+## Validation commands
+
+```bash
+python manage.py check
+python manage.py check --deploy
+python manage.py test
+```
+
+## API key behavior
+
+- Public read endpoints enforce `PORTFOLIO_API_KEY` when configured.
+- Localhost requests (`localhost` / `127.0.0.1`) are allowed without API key to keep local dev, preview, and audit workflows smooth.
+
 ## Production notes
 - Intended public website domain: `www.roshandmaor.me`
 - Intended admin domain: `admin.roshandmaor.me`
