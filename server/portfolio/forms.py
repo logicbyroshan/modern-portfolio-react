@@ -281,12 +281,19 @@ class UserProfileForm(forms.ModelForm):
 class ExperienceForm(forms.ModelForm):
     """Form for creating and editing work experience"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["category"].queryset = Category.objects.filter(
+            category_type="experience"
+        ).order_by("name")
+
     class Meta:
         model = Experience
         fields = [
             "position",
             "employment_type",
             "employment_status",
+            "category",
             "location",
             "company_name",
             "company_about",
@@ -315,6 +322,9 @@ class ExperienceForm(forms.ModelForm):
             ),
             "employment_status": forms.Select(
                 attrs={"class": "form-input", "required": True, "id": "id_employment_status"}
+            ),
+            "category": forms.Select(
+                attrs={"class": "form-input", "id": "id_category"}
             ),
             "location": forms.TextInput(
                 attrs={
@@ -390,8 +400,9 @@ class ExperienceForm(forms.ModelForm):
         }
         labels = {
             "position": "Position Title",
-            "employment_type": "Category",
+            "employment_type": "Employment Type",
             "employment_status": "Employment Status",
+            "category": "Category",
             "location": "Location",
             "company_name": "Company Name",
             "company_about": "About Company",
@@ -411,11 +422,18 @@ class ExperienceForm(forms.ModelForm):
 class SkillForm(forms.ModelForm):
     """Form for creating and editing skills"""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["category"].queryset = Category.objects.filter(
+            category_type="skill"
+        ).order_by("name")
+
     class Meta:
         model = Skill
         fields = [
             "name",
             "skill_level",
+            "category",
             "proficiency",
             "description",
             "icon_type",
@@ -436,6 +454,7 @@ class SkillForm(forms.ModelForm):
                 }
             ),
             "skill_level": forms.Select(attrs={"class": "form-input"}),
+            "category": forms.Select(attrs={"class": "form-input"}),
             "proficiency": forms.NumberInput(
                 attrs={
                     "class": "form-input",
@@ -477,6 +496,7 @@ class SkillForm(forms.ModelForm):
         labels = {
             "name": "Skill Name",
             "skill_level": "Skill Level",
+            "category": "Category",
             "proficiency": "Proficiency (%)",
             "description": "Description",
             "icon_type": "Icon Method",

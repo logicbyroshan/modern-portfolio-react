@@ -194,24 +194,13 @@
     z-index: 10;
 }
 
-@keyframes glowPulse {
-    0%, 100% {
-        box-shadow: 0 0 0px 0px rgba(167, 139, 250, 0);
-        background: #e8e8e8;
-    }
-    50% {
-        box-shadow: 0 0 10px 3px rgba(167, 139, 250, 0.7), 0 0 20px 6px rgba(124, 58, 237, 0.3);
-        background: #c4b5fd;
-    }
-}
-
 .dot-1 {
     left: 2%;
     bottom: 40%;
     width: 11px;
     height: 11px;
     opacity: 0.9;
-    animation: float 3s ease-in-out infinite, glowPulse 2.8s ease-in-out infinite;
+    animation: float 3s ease-in-out infinite;
 }
 
 .dot-2 {
@@ -220,7 +209,7 @@
     width: 11px;
     height: 11px;
     opacity: 0.9;
-    animation: float 4s ease-in-out infinite 0.5s, glowPulse 3.2s ease-in-out infinite 0.5s;
+    animation: float 4s ease-in-out infinite 0.5s;
 }
 
 .dot-3 {
@@ -229,7 +218,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.3;
-    animation: float 3.5s ease-in-out infinite 1s, glowPulse 3.6s ease-in-out infinite 1s;
+    animation: float 3.5s ease-in-out infinite 1s;
 }
 
 .dot-4 {
@@ -238,7 +227,7 @@
     width: 10px;
     height: 10px;
     opacity: 0.7;
-    animation: float 3.2s ease-in-out infinite 1.5s, glowPulse 2.6s ease-in-out infinite 1.5s;
+    animation: float 3.2s ease-in-out infinite 1.5s;
 }
 
 .dot-5 {
@@ -247,7 +236,7 @@
     width: 11px;
     height: 11px;
     opacity: 0.6;
-    animation: float 3.8s ease-in-out infinite 0.8s, glowPulse 3s ease-in-out infinite 0.8s;
+    animation: float 3.8s ease-in-out infinite 0.8s;
 }
 
 .dot-6 {
@@ -256,7 +245,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.2;
-    animation: float 3.3s ease-in-out infinite 1.2s, glowPulse 3.4s ease-in-out infinite 1.2s;
+    animation: float 3.3s ease-in-out infinite 1.2s;
 }
 
 .dot-7 {
@@ -265,7 +254,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.3;
-    animation: float 3.6s ease-in-out infinite 0.3s, glowPulse 2.9s ease-in-out infinite 0.3s;
+    animation: float 3.6s ease-in-out infinite 0.3s;
 }
 
 .dot-8 {
@@ -274,7 +263,7 @@
     width: 10px;
     height: 10px;
     opacity: 0.7;
-    animation: float 3.4s ease-in-out infinite 0.6s, glowPulse 3.1s ease-in-out infinite 0.6s;
+    animation: float 3.4s ease-in-out infinite 0.6s;
 }
 
 .dot-9 {
@@ -283,7 +272,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.2;
-    animation: float 3.7s ease-in-out infinite 1.1s, glowPulse 3.5s ease-in-out infinite 1.1s;
+    animation: float 3.7s ease-in-out infinite 1.1s;
 }
 
 .dot-10 {
@@ -292,7 +281,7 @@
     width: 9px;
     height: 9px;
     opacity: 0.45;
-    animation: float 3.9s ease-in-out infinite 0.4s, glowPulse 2.7s ease-in-out infinite 0.4s;
+    animation: float 3.9s ease-in-out infinite 0.4s;
 }
 
 .about-content {
@@ -327,7 +316,7 @@
         transform: translateY(0px);
     }
     50% {
-        transform: translateY(0px);
+        transform: translateY(-6px);
     }
 }
 

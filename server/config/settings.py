@@ -32,14 +32,20 @@ def env_list(name, default=""):
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "change-this-to-a-very-long-random-secret-key-before-production-12345",
-)
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in {"1", "true", "yes", "on"}
+
+# SECURITY WARNING: keep the secret key used in production secret!
+DEV_FALLBACK_SECRET_KEY = "django-insecure-development-only-key-change-me"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "").strip()
+
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = DEV_FALLBACK_SECRET_KEY
+    else:
+        raise RuntimeError(
+            "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is False."
+        )
 
 ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",

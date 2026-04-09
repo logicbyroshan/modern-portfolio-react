@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import re
@@ -38,14 +39,18 @@ class ReadOnlyPermission(permissions.BasePermission):
 
 class APIKeyPermission(permissions.BasePermission):
     """
-    Custom permission to check for API key in headers.
-    Additional security layer.
+    Optional API key permission.
+
+    If settings.API_KEY is configured, requests must include matching
+    X-API-Key header. If API_KEY is empty, the check is skipped.
     """
     def has_permission(self, request, view):
-        api_key = request.headers.get('X-API-Key')
-        # Allow requests without API key for now (optional security)
-        # To enforce: return api_key == settings.API_KEY
-        return True  # Change to enforce API key if needed
+        configured_key = (getattr(settings, 'API_KEY', '') or '').strip()
+        if not configured_key:
+            return True
+
+        api_key = (request.headers.get('X-API-Key') or '').strip()
+        return api_key == configured_key
 
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
@@ -57,12 +62,17 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/projects/featured/ - Get featured projects
     """
     serializer_class = ProjectSerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     lookup_field = 'slug'
     
     def get_queryset(self):
         """Return only active projects."""
-        queryset = Project.objects.filter(is_active=True).select_related('category').prefetch_related('screenshots')
+        queryset = (
+            Project.objects.filter(is_active=True)
+            .exclude(status='draft')
+            .select_related('category')
+            .prefetch_related('screenshots')
+        )
         
         # Filter by category
         category = self.request.query_params.get('category', None)
@@ -97,19 +107,27 @@ class ExperienceViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/experience/{id}/ - Get single experience
     """
     serializer_class = ExperienceSerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     lookup_field = 'slug'
     
     def get_queryset(self):
         """Return only active, non-draft experience"""
-        queryset = Experience.objects.filter(
-            is_active=True, 
-            is_draft=False
-        ).prefetch_related('images')
+        queryset = (
+            Experience.objects.filter(
+                is_active=True,
+                is_draft=False,
+            )
+            .select_related('category')
+            .prefetch_related('images')
+        )
 
         employment_type = self.request.query_params.get('employment_type', None)
         if employment_type:
             queryset = queryset.filter(employment_type=employment_type)
+
+        category = self.request.query_params.get('category', None)
+        if category:
+            queryset = queryset.filter(category__slug=category)
 
         return queryset.order_by('-order', '-start_date')
 
@@ -123,16 +141,20 @@ class SkillViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/skills/top/ - Get top skills by proficiency
     """
     serializer_class = SkillSerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     lookup_field = 'slug'
     
     def get_queryset(self):
         """Return only active, non-draft skills"""
-        queryset = Skill.objects.filter(is_active=True, is_draft=False)
+        queryset = Skill.objects.filter(is_active=True, is_draft=False).select_related('category')
         
         level = self.request.query_params.get('level', None)
         if level:
             queryset = queryset.filter(skill_level=level)
+
+        category = self.request.query_params.get('category', None)
+        if category:
+            queryset = queryset.filter(category__slug=category)
         
         return queryset.order_by('-proficiency', 'name')
     
@@ -152,7 +174,7 @@ class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/achievements/{id}/ - Get single achievement
     """
     serializer_class = AchievementSerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     lookup_field = 'slug'
     
     def get_queryset(self):
@@ -175,7 +197,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/categories/{slug}/ - Get single category
     """
     serializer_class = CategorySerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     lookup_field = 'slug'
     
     def get_queryset(self):
@@ -197,7 +219,7 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     GET /api/profile/ - Get user profile
     """
     serializer_class = UserProfileSerializer
-    permission_classes = [ReadOnlyPermission]
+    permission_classes = [ReadOnlyPermission, APIKeyPermission]
     
     def get_queryset(self):
         """Return user profile (only one)"""
@@ -213,23 +235,24 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @api_view(['GET'])
-@permission_classes([ReadOnlyPermission])
+@permission_classes([ReadOnlyPermission, APIKeyPermission])
 def portfolio_summary(request):
     """
     Get portfolio summary statistics.
     
     GET /api/summary/ - Get overall portfolio stats
     """
+    profile = UserProfile.objects.first()
     data = {
         'total_projects': Project.objects.count(),
         'total_experience': Experience.objects.count(),
         'total_skills': Skill.objects.count(),
         'total_achievements': Achievement.objects.count(),
-        'active_projects': Project.objects.filter(is_active=True).count(),
+        'active_projects': Project.objects.filter(is_active=True).exclude(status='draft').count(),
         'active_experience': Experience.objects.filter(is_active=True, is_draft=False).count(),
         'active_skills': Skill.objects.filter(is_active=True, is_draft=False).count(),
         'active_achievements': Achievement.objects.filter(is_active=True, is_draft=False).count(),
-        'years_of_experience': UserProfile.objects.first().experience_years if UserProfile.objects.first() else 0,
+        'years_of_experience': profile.experience_years if profile else 0,
     }
     
     serializer = PortfolioSummarySerializer(data)

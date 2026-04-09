@@ -7,21 +7,28 @@
     position: fixed;
     inset: 0;
     background: rgba(4, 6, 28, 0.82);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9000;
     padding: 16px;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.28s ease;
+    contain: layout paint style;
+    will-change: opacity;
+    transition: opacity 0.28s ease, visibility 0s linear 0.28s;
 }
 
 .modal-overlay.modal-visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: all;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition-delay: 0s;
 }
 
 /* ─── Card ───────────────────────────────── */

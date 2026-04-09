@@ -1,5 +1,5 @@
 // About Section Animations
-document.addEventListener('DOMContentLoaded', function() {
+function initAboutSection() {
     // Single Intersection Observer for fade-in animations
     const observerOptions = {
         threshold: 0.15,
@@ -68,4 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
         aboutBtn.style.transition = 'opacity 0.6s ease 1s, transform 0.6s ease 1s';
         observer.observe(aboutBtn);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAboutSection, { once: true });
+} else {
+    initAboutSection();
+}

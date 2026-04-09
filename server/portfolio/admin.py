@@ -110,6 +110,7 @@ class ExperienceAdmin(admin.ModelAdmin):
     list_display = [
         "position",
         "company_name",
+        "category",
         "employment_type",
         "employment_status",
         "start_date",
@@ -117,7 +118,7 @@ class ExperienceAdmin(admin.ModelAdmin):
         "is_active",
         "is_draft",
     ]
-    list_filter = ["employment_type", "employment_status", "is_active", "is_draft"]
+    list_filter = ["category", "employment_type", "employment_status", "is_active", "is_draft"]
     search_fields = ["position", "company_name", "short_description"]
     prepopulated_fields = {"slug": ("position",)}
     inlines = [ExperienceImageInline]
@@ -128,13 +129,14 @@ class ExperienceAdmin(admin.ModelAdmin):
 class SkillAdmin(admin.ModelAdmin):
     list_display = [
         "name",
+        "category",
         "skill_level",
         "proficiency",
         "is_active",
         "is_draft",
         "created_at",
     ]
-    list_filter = ["skill_level", "is_active", "is_draft"]
+    list_filter = ["category", "skill_level", "is_active", "is_draft"]
     search_fields = ["name", "description"]
     prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ["created_at", "updated_at"]
@@ -145,6 +147,7 @@ class SkillAdmin(admin.ModelAdmin):
                 "fields": (
                     "name",
                     "slug",
+                    "category",
                     "skill_level",
                     "proficiency",
                     "description",

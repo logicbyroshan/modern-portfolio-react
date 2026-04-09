@@ -2,17 +2,20 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchPortfolioData } from './api/portfolioApi';
 import { hydratePortfolioDom } from './api/hydratePortfolio';
 
-const LEGACY_SCRIPTS = [
+const CORE_LEGACY_SCRIPTS = [
   '/static/js/script.js',
-  '/static/js/technology.js',
-  '/static/js/blog.js',
-  '/static/js/about.js',
   '/static/js/faq.js',
-  '/static/js/roadmap.js',
   '/static/js/projects.js',
   '/static/js/contact.js',
   '/static/js/sounds.js',
   '/static/js/modal.js',
+];
+
+const DEFERRED_LEGACY_SCRIPTS = [
+  '/static/js/technology.js',
+  '/static/js/blog.js',
+  '/static/js/about.js',
+  '/static/js/roadmap.js',
 ];
 
 function App() {
@@ -44,6 +47,7 @@ function App() {
 
     const appendedScripts = [];
     let cancelled = false;
+    let cancelDeferredLoad = null;
 
     const loadScript = (src) =>
       new Promise((resolve, reject) => {
@@ -55,13 +59,23 @@ function App() {
 
         const script = document.createElement('script');
         script.src = src;
-        script.async = false;
+        script.async = true;
         script.setAttribute('data-legacy-src', src);
         script.onload = () => resolve();
         script.onerror = () => reject(new Error(`Failed to load ${src}`));
         document.body.appendChild(script);
         appendedScripts.push(script);
       });
+
+    const scheduleDeferred = (callback) => {
+      if ('requestIdleCallback' in window) {
+        const id = window.requestIdleCallback(callback, { timeout: 1200 });
+        return () => window.cancelIdleCallback(id);
+      }
+
+      const id = window.setTimeout(callback, 200);
+      return () => window.clearTimeout(id);
+    };
 
     const initializeLegacyScripts = async () => {
       try {
@@ -73,17 +87,21 @@ function App() {
         // Keep static fallback content if API is not reachable.
       }
 
-      for (const src of LEGACY_SCRIPTS) {
-        // Load scripts in order because some files depend on previous global setup.
-        // eslint-disable-next-line no-await-in-loop
-        await loadScript(src);
-      }
+      await Promise.all(CORE_LEGACY_SCRIPTS.map((src) => loadScript(src)));
 
       if (cancelled) {
         return;
       }
 
-      document.dispatchEvent(new Event('DOMContentLoaded'));
+      cancelDeferredLoad = scheduleDeferred(() => {
+        if (cancelled) {
+          return;
+        }
+
+        Promise.all(DEFERRED_LEGACY_SCRIPTS.map((src) => loadScript(src))).catch(() => {
+          // Keep rendering the page even if deferred scripts fail to load.
+        });
+      });
     };
 
     initializeLegacyScripts().catch(() => {
@@ -92,6 +110,9 @@ function App() {
 
     return () => {
       cancelled = true;
+      if (cancelDeferredLoad) {
+        cancelDeferredLoad();
+      }
       appendedScripts.forEach((script) => script.remove());
     };
   }, [markup]);

@@ -1,5 +1,5 @@
 // Technology Section Animations
-document.addEventListener('DOMContentLoaded', function() {
+function initTechnologySection() {
     // Single Intersection Observer for all elements
     const observerOptions = {
         threshold: 0.1,
@@ -42,4 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
         techHeading.style.transition = 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s';
         observer.observe(techHeading);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTechnologySection, { once: true });
+} else {
+    initTechnologySection();
+}

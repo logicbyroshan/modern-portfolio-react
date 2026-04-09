@@ -7,9 +7,17 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-function safeUrl(url, fallback = '#') {
+export function safeUrl(url, fallback = '#') {
   if (!url) return fallback;
-  return url;
+
+  try {
+      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+      const parsed = new URL(String(url), baseOrigin);
+    const allowedProtocols = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+    return allowedProtocols.has(parsed.protocol) ? parsed.href : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function formatDateRange(startDate, endDate, currentlyWorking) {
@@ -140,7 +148,7 @@ function updateProjects(projects) {
         .join('');
 
       const categoryName = project.category?.name || 'Project';
-      const imageUrl = project.thumbnail || '/static/images/ecom.jpg';
+      const imageUrl = project.thumbnail || '/static/images/ecom.webp';
       const projectName = project.project_name || project.title;
       const projectLink = safeUrl(project.live_url || project.demo_url);
       const githubLink = safeUrl(project.github_url);
@@ -159,7 +167,7 @@ function updateProjects(projects) {
           </div>
           <div class="project-image">
             <span class="project-category">${escapeHtml(categoryName)}</span>
-            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(project.title)}">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(project.title)}" loading="lazy" decoding="async">
           </div>
         </div>
       `;

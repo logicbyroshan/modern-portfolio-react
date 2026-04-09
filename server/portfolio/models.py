@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
 
 
@@ -46,11 +47,11 @@ class Category(models.Model):
         if self.category_type == "project":
             return self.projects.count()
         elif self.category_type == "skill":
-            return self.skills.count() if hasattr(self, "skills") else 0
+            return self.skills.count()
         elif self.category_type == "achievement":
-            return self.achievements.count() if hasattr(self, "achievements") else 0
+            return self.achievements.count()
         elif self.category_type == "experience":
-            return self.experiences.count() if hasattr(self, "experiences") else 0
+            return self.experiences.count()
         return 0
 
 
@@ -244,6 +245,15 @@ class Experience(models.Model):
         default="current",
         help_text="Current or past employment",
     )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="experiences",
+        help_text="Experience category",
+        limit_choices_to={"category_type": "experience"},
+    )
     location = models.CharField(
         max_length=200, blank=True, help_text="Work location or Remote"
     )
@@ -343,9 +353,19 @@ class Skill(models.Model):
         default="intermediate",
         help_text="Proficiency level",
     )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="skills",
+        help_text="Skill category",
+        limit_choices_to={"category_type": "skill"},
+    )
     proficiency = models.IntegerField(
         default=50,
         help_text="Proficiency percentage (0-100)",
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
     )
     description = models.TextField(
         blank=True, help_text="Brief description of skill and experience"

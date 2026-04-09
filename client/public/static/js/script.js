@@ -1,7 +1,7 @@
 // JavaScript for interactivity
 console.log("Portfolio UI Loaded");
 
-document.addEventListener('DOMContentLoaded', function() {
+function initCoreInteractions() {
     // Mobile Menu functionality
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -41,16 +41,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const scrollTopBtn = document.getElementById('scrollTopBtn');
 
     window.addEventListener('scroll', function () {
+        if (!scrollTopBtn) {
+            return;
+        }
+
         if (window.scrollY > 400) {
             scrollTopBtn.classList.add('visible');
         } else {
             scrollTopBtn.classList.remove('visible');
         }
-    });
+    }, { passive: true });
 
     if (scrollTopBtn) {
         scrollTopBtn.addEventListener('click', function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCoreInteractions, { once: true });
+} else {
+    initCoreInteractions();
+}

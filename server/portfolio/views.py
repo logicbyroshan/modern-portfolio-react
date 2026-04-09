@@ -16,6 +16,20 @@ from django.utils.text import slugify
 import json
 
 
+def generate_unique_slug(model_class, raw_value, slug_field="slug", max_attempts=1000):
+    """Generate a unique slug for a model class using numeric suffixes when needed."""
+    base_slug = slugify(raw_value or "item") or "item"
+    slug = base_slug
+
+    for counter in range(max_attempts):
+        exists = model_class.objects.filter(**{slug_field: slug}).exists()
+        if not exists:
+            return slug
+        slug = f"{base_slug}-{counter + 1}"
+
+    raise ValueError(f"Could not generate a unique slug for '{base_slug}'")
+
+
 # Dashboard Views
 def dashboard(request):
     """Main dashboard view with real data"""
@@ -259,21 +273,16 @@ def create_experience(request):
             start_date = post_data['start_date']
             if len(start_date) == 7:  # Format: YYYY-MM
                 post_data['start_date'] = f"{start_date}-01"
-                print(f"Converted start_date: {start_date} -> {post_data['start_date']}")
         
         # Convert end_date from YYYY-MM to YYYY-MM-01
         if 'end_date' in post_data and post_data['end_date']:
             end_date = post_data['end_date']
             if len(end_date) == 7:  # Format: YYYY-MM
                 post_data['end_date'] = f"{end_date}-01"
-                print(f"Converted end_date: {end_date} -> {post_data['end_date']}")
         
         # Set default order if not provided
         if 'order' not in post_data or not post_data['order']:
             post_data['order'] = '0'
-            print("Set default order to 0")
-        
-        print(f"Final POST data - start_date: {post_data.get('start_date')}, end_date: {post_data.get('end_date')}, order: {post_data.get('order')}")
         
         form = ExperienceForm(post_data, request.FILES)
         if form.is_valid():
@@ -283,15 +292,9 @@ def create_experience(request):
             is_draft = request.POST.get("is_draft", "false")
             experience.is_draft = is_draft == "true"
 
-            # Generate slug from position
+            # Generate a collision-safe slug from position.
             if not experience.slug:
-                base_slug = slugify(experience.position)
-                slug = base_slug
-                counter = 1
-                while Experience.objects.filter(slug=slug).exists():
-                    slug = f"{base_slug}-{counter}"
-                    counter += 1
-                experience.slug = slug
+                experience.slug = generate_unique_slug(Experience, experience.position)
 
             experience.save()
 
@@ -315,10 +318,6 @@ def create_experience(request):
                 messages.success(request, "Experience created successfully!")
                 return redirect("manage_experience")
         else:
-            # Print form errors to console for debugging
-            print("Form validation errors:")
-            print(form.errors)
-            print("POST data:", request.POST)
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse(
                     {"success": False, "errors": form.errors}, status=400
@@ -473,9 +472,8 @@ def create_skill(request):
         if form.is_valid():
             skill = form.save(commit=False)
             
-            # Generate slug from name
-            from django.utils.text import slugify
-            skill.slug = slugify(skill.name)
+            # Generate a collision-safe slug from the skill name.
+            skill.slug = generate_unique_slug(Skill, skill.name)
             
             # Set default order if not provided
             if not skill.order:
@@ -587,7 +585,7 @@ def create_achievement(request):
             
             # Generate slug if not provided
             if not achievement.slug:
-                achievement.slug = slugify(achievement.title)
+                achievement.slug = generate_unique_slug(Achievement, achievement.title)
             
             achievement.save()
             messages.success(request, f'Achievement "{achievement.title}" created successfully!')
@@ -966,7 +964,7 @@ def manage_details(request):
             resume_exists = profile.resume.storage.exists(profile.resume.name)
             if resume_exists:
                 resume_size = profile.resume.size
-        except:
+        except (OSError, ValueError):
             resume_exists = False
     
     cover_letter_exists = False
@@ -976,7 +974,7 @@ def manage_details(request):
             cover_letter_exists = profile.cover_letter.storage.exists(profile.cover_letter.name)
             if cover_letter_exists:
                 cover_letter_size = profile.cover_letter.size
-        except:
+        except (OSError, ValueError):
             cover_letter_exists = False
     
     context = {

@@ -1,5 +1,5 @@
 // Contact Section - Toggle functionality
-document.addEventListener('DOMContentLoaded', function() {
+function initContactSection() {
     const toggleSwitch = document.querySelector('.toggle-switch');
     const urgentWarning = document.querySelector('.urgent-warning');
     
@@ -95,4 +95,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContactSection, { once: true });
+} else {
+    initContactSection();
+}

@@ -1,5 +1,5 @@
 // Roadmap Section Animations
-document.addEventListener('DOMContentLoaded', function() {
+function initRoadmapSection() {
     const roadmapItems = document.querySelectorAll('.roadmap-item');
     
     // Single Intersection Observer
@@ -20,4 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     roadmapItems.forEach(item => {
         observer.observe(item);
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRoadmapSection, { once: true });
+} else {
+    initRoadmapSection();
+}

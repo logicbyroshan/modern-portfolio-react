@@ -62,7 +62,7 @@ html {
 body {
     font-family: var(--font-body);
     background-color: var(--bg-color);
-    background-image: url('../images/mybgimg.png');
+    background-image: url('../images/mybgimg.webp');
     background-position: top center;
     background-size: 100% auto;
     background-repeat: no-repeat;
@@ -95,11 +95,10 @@ body {
     width: 500px;
     height: 500px;
     border-radius: 50%;
-    filter: blur(80px);
+    filter: blur(56px);
     opacity: 0.3;
     pointer-events: none;
     z-index: -1;
-    will-change: transform;
 }
 
 .container::before {
@@ -198,8 +197,8 @@ body {
     width: 280px;
     height: 100vh;
     background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg-2) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     padding-top: 80px;
     padding-bottom: 30px;
     transform: translateX(-100%);
@@ -259,7 +258,7 @@ body {
     width: 100%;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(2px);
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -548,8 +547,8 @@ body {
 .hero-image {
     max-width: 90%;
     height: auto;
-    filter: drop-shadow(0 0 50px rgba(92, 39, 254, 0.3));
-    animation: float 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 24px rgba(92, 39, 254, 0.28));
+    animation: float 8s ease-in-out infinite;
     position: relative;
     z-index: 2;
     margin-bottom: -60px;
@@ -560,12 +559,11 @@ body {
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, rgba(92, 39, 254, 0.35) 0%, rgba(7, 10, 41, 0) 65%);
-    filter: blur(50px);
+    filter: blur(28px);
     z-index: 1;
     top: 30%;
     left: 50%;
     transform: translate(-50%, -50%);
-    will-change: transform;
     pointer-events: none;
 }
 
@@ -587,8 +585,8 @@ body {
         rgba(20, 30, 80, 0.3) 80%,
         var(--card-gradient-end) 100%
     );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border: none;
     border-radius: 20px;
     padding: 25px;
@@ -596,7 +594,6 @@ body {
     box-shadow: none;
     position: relative;
     z-index: 3;
-    will-change: transform;
 }
 
 .nft-card-header {

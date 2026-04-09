@@ -1,8 +1,12 @@
 // Projects Section Slider
-document.addEventListener('DOMContentLoaded', function() {
+function initProjectsSlider() {
     const projectCards = document.querySelectorAll('.project-card');
     const prevBtn = document.querySelector('.prev-btn');
     const nextBtn = document.querySelector('.next-btn');
+    if (!projectCards.length) {
+        return;
+    }
+
     let currentIndex = 0;
 
     function showProject(index) {
@@ -83,4 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize first project
     showProject(0);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProjectsSlider, { once: true });
+} else {
+    initProjectsSlider();
+}

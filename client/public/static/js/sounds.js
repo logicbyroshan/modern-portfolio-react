@@ -12,6 +12,7 @@
     const BG_VOLUME = 0.07;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let isMuted = localStorage.getItem('portfolioMuted') === 'true' || prefersReducedMotion;
+    let soundBindingsReady = false;
 
     /* ── Create / resume AudioContext ── */
     function getCtx() {
@@ -328,7 +329,9 @@
     /* ════════════════════════════════════════════════
        WIRE UP ALL INTERACTIONS
        ════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', function () {
+    function wireSoundInteractions() {
+        if (soundBindingsReady) return;
+        soundBindingsReady = true;
 
         const soundToggleBtn = document.getElementById('soundToggleBtn');
 
@@ -429,7 +432,13 @@
         if (isMuted) {
             applyMuteState();
         }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', wireSoundInteractions, { once: true });
+    } else {
+        wireSoundInteractions();
+    }
 
     // Expose for debugging
     window._SoundEngine = { initAudio, playClick, playSlide, playPop };

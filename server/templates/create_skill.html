@@ -69,6 +69,15 @@
             </div>
             <div class="form-group">
                 <label class="form-label">
+                    <i class="fas fa-tags"></i> Category <span class="optional-badge">Optional</span>
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <span class="error-message">{{ form.category.errors.0 }}</span>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">
                     <i class="fas fa-chart-line"></i> Proficiency (%) *
                 </label>
                 {{ form.proficiency }}

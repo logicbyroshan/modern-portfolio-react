@@ -91,6 +91,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 class ExperienceSerializer(serializers.ModelSerializer):
     images = ExperienceImageSerializer(many=True, read_only=True)
     duration = serializers.CharField(read_only=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Experience
@@ -100,6 +101,7 @@ class ExperienceSerializer(serializers.ModelSerializer):
             "slug",
             "employment_type",
             "employment_status",
+            "category",
             "location",
             "company_name",
             "company_about",
@@ -124,6 +126,7 @@ class SkillSerializer(serializers.ModelSerializer):
     skill_level_display = serializers.CharField(
         source="get_skill_level_display", read_only=True
     )
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Skill
@@ -133,6 +136,7 @@ class SkillSerializer(serializers.ModelSerializer):
             "slug",
             "skill_level",
             "skill_level_display",
+            "category",
             "proficiency",
             "description",
             "icon_type",

@@ -1,5 +1,5 @@
 // FAQ Section Functionality
-document.addEventListener('DOMContentLoaded', function() {
+function initFaqSection() {
     // Accordion functionality
     const faqItems = document.querySelectorAll('.faq-item');
     
@@ -93,4 +93,10 @@ document.addEventListener('DOMContentLoaded', function() {
             observer.observe(el);
         }
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFaqSection, { once: true });
+} else {
+    initFaqSection();
+}

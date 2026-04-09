@@ -61,7 +61,7 @@
     z-index: 2;
     border-radius: 20px;
     background: linear-gradient(135deg, rgba(30, 40, 100, 0.7) 0%, rgba(20, 30, 80, 0.5) 100%);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(10px);
     border: none;
     padding: 20px;
 }

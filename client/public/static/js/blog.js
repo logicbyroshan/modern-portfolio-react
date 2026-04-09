@@ -1,5 +1,5 @@
 // Blog Section Animations
-document.addEventListener('DOMContentLoaded', function() {
+function initBlogSection() {
     // Single Intersection Observer
     const observerOptions = {
         threshold: 0.1,
@@ -42,4 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
         blogHeading.style.transition = 'opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s';
         observer.observe(blogHeading);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBlogSection, { once: true });
+} else {
+    initBlogSection();
+}

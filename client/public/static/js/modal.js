@@ -5,6 +5,8 @@
 (function () {
     'use strict';
 
+    let rexiInitialized = false;
+
     // ── Open / Close ──────────────────────────────────────────────────────────
 
     function openModal(id) {
@@ -14,6 +16,9 @@
         document.body.style.overflow = 'hidden';
         document.documentElement.style.overflow = 'hidden';
         overlay.classList.add('modal-visible');
+        if (id === 'modal-rexi') {
+            initRexi();
+        }
         overlay.querySelector('.modal-close')?.focus();
     }
 
@@ -181,10 +186,14 @@
     }
 
     function initRexi() {
+        if (rexiInitialized) return;
+
         const input      = document.getElementById('rexi-input');
         const sendBtn    = document.getElementById('rexi-send');
         const messages   = document.getElementById('rexi-messages');
         if (!input || !sendBtn || !messages) return;
+
+        rexiInitialized = true;
 
         function sendMessage() {
             const text = input.value.trim();
@@ -214,12 +223,5 @@
                 sendMessage();
             }
         });
-    }
-
-    // init after DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initRexi);
-    } else {
-        initRexi();
     }
 }());
