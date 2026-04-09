@@ -18,6 +18,9 @@ const DEFERRED_LEGACY_SCRIPTS = [
   '/static/js/roadmap.js',
 ];
 
+const DEFERRED_SCRIPT_GAP_MS = 50;
+const DEFERRED_FALLBACK_DELAY_MS = 10000;
+
 function App() {
   const [markup, setMarkup] = useState('');
 
@@ -79,17 +82,59 @@ function App() {
       }
     };
 
+    const pause = (ms) =>
+      new Promise((resolve) => {
+        window.setTimeout(resolve, ms);
+      });
+
     const scheduleDeferred = (callback) => {
-      if ('requestIdleCallback' in window) {
-        const id = window.requestIdleCallback(callback, { timeout: 1200 });
-        return () => window.cancelIdleCallback(id);
+      let cancelIdleOrTimeout = null;
+      let onLoad = null;
+
+      const run = () => {
+        if (cancelled || deferredLoaded) {
+          return;
+        }
+
+        if ('requestIdleCallback' in window) {
+          const id = window.requestIdleCallback(() => {
+            void callback();
+          }, { timeout: 3500 });
+          cancelIdleOrTimeout = () => window.cancelIdleCallback(id);
+          return;
+        }
+
+        const id = window.setTimeout(() => {
+          void callback();
+        }, 1200);
+        cancelIdleOrTimeout = () => window.clearTimeout(id);
+      };
+
+      if (document.readyState === 'complete') {
+        run();
+      } else {
+        onLoad = () => {
+          run();
+        };
+        window.addEventListener('load', onLoad, { once: true });
       }
 
-      const id = window.setTimeout(callback, 200);
-      return () => window.clearTimeout(id);
+      const fallbackId = window.setTimeout(() => {
+        void callback();
+      }, DEFERRED_FALLBACK_DELAY_MS);
+
+      return () => {
+        if (onLoad) {
+          window.removeEventListener('load', onLoad);
+        }
+        window.clearTimeout(fallbackId);
+        if (cancelIdleOrTimeout) {
+          cancelIdleOrTimeout();
+        }
+      };
     };
 
-    const loadDeferredScripts = () => {
+    const loadDeferredScripts = async () => {
       if (cancelled || deferredLoaded) {
         return;
       }
@@ -100,9 +145,19 @@ function App() {
         removeDeferredTriggers = null;
       }
 
-      Promise.all(DEFERRED_LEGACY_SCRIPTS.map((src) => loadScript(src))).catch(() => {
-        // Keep rendering the page even if deferred scripts fail to load.
-      });
+      for (const src of DEFERRED_LEGACY_SCRIPTS) {
+        if (cancelled) {
+          return;
+        }
+
+        try {
+          await loadScript(src);
+        } catch {
+          // Keep rendering the page even if a deferred script fails to load.
+        }
+
+        await pause(DEFERRED_SCRIPT_GAP_MS);
+      }
     };
 
     const bindDeferredTriggers = () => {
@@ -114,7 +169,7 @@ function App() {
       ];
 
       const onTrigger = () => {
-        loadDeferredScripts();
+        void loadDeferredScripts();
       };
 
       triggerConfigs.forEach(({ target, type, options }) => {

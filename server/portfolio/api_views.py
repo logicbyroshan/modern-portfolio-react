@@ -32,6 +32,15 @@ from .serializers import (
 )
 
 
+def is_localhost_request(request):
+    try:
+        host = (request.get_host() or '').split(':', 1)[0].strip().lower()
+    except Exception:
+        return False
+
+    return host in {'localhost', '127.0.0.1', '::1'}
+
+
 class ReadOnlyPermission(permissions.BasePermission):
     """
     Custom permission to only allow read operations (GET, HEAD, OPTIONS).
@@ -52,6 +61,9 @@ class APIKeyPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         configured_key = (getattr(settings, 'API_KEY', '') or '').strip()
         if not configured_key:
+            return True
+
+        if is_localhost_request(request):
             return True
 
         api_key = (request.headers.get('X-API-Key') or '').strip()

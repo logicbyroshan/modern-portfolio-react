@@ -10,10 +10,36 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+        headers: {
+          'X-Forwarded-Proto': 'https',
+        },
       },
       '/media': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
+        headers: {
+          'X-Forwarded-Proto': 'https',
+        },
+      },
+    },
+  },
+  preview: {
+    host: true,
+    port: 4173,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        headers: {
+          'X-Forwarded-Proto': 'https',
+        },
+      },
+      '/media': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        headers: {
+          'X-Forwarded-Proto': 'https',
+        },
       },
     },
   },

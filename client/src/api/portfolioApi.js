@@ -1,6 +1,29 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+const CONFIGURED_API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 const TIME_API = typeof window !== 'undefined' ? window : globalThis;
 const CACHE_KEY = 'portfolio-bootstrap-cache-v1';
+
+function resolveApiBaseUrl() {
+  if (typeof window === 'undefined') {
+    return CONFIGURED_API_BASE_URL;
+  }
+
+  const hostname = window.location.hostname;
+  const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  if (!isLocalHost) {
+    return CONFIGURED_API_BASE_URL;
+  }
+
+  const isAbsoluteUrl = /^https?:\/\//i.test(CONFIGURED_API_BASE_URL);
+  if (!isAbsoluteUrl) {
+    return CONFIGURED_API_BASE_URL;
+  }
+
+  // On localhost previews, use the local proxy to avoid external DNS/CORS failures.
+  return '/api';
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 function parsePositiveInt(value, fallback) {
   const parsed = Number.parseInt(String(value ?? ''), 10);

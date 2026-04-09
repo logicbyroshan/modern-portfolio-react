@@ -10,7 +10,7 @@
                 <a href="#contact" class="nav-link">Contact Me</a>
             </nav>
             <a href="#home" class="brand">
-                <img src="/static/images/logo.webp" alt="Roshan Damor Logo" class="logo-image" width="3965" height="1000" decoding="async">
+                <img src="/static/images/logo.webp" alt="Roshan Damor Logo" class="logo-image" decoding="async">
             </a>
             <div class="nav-actions">
                 <button type="button" class="btn btn-secondary btn-nav" data-modal="modal-resume">Resume</button>
@@ -28,7 +28,7 @@
                 <span></span>
             </button>
             <a href="#home" class="brand">
-                <img src="/static/images/logo.webp" alt="Roshan Damor Logo" class="logo-image" width="3965" height="1000" decoding="async">
+                <img src="/static/images/logo.webp" alt="Roshan Damor Logo" class="logo-image" decoding="async">
             </a>
         </div>
         
@@ -50,6 +50,8 @@
         <!-- Mobile Overlay -->
         <div class="mobile-overlay" id="mobileOverlay"></div>
     </div>
+
+    <main id="main-content">
 
     <!-- Hero Section -->
     <section class="hero-section" id="home">
@@ -95,7 +97,7 @@
                     <!-- NFT Card -->
                     <div class="nft-card">
                         <div class="nft-card-header">
-                            <h3 class="nft-card-title">Data Structures & Algorithms Portfolio</h3>
+                            <h2 class="nft-card-title">Data Structures & Algorithms Portfolio</h2>
                         </div>
                         <div class="nft-card-body">
                             <div class="nft-info-row">
@@ -335,8 +337,8 @@
             </div>
 
             <div class="projects-navigation">
-                <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+                <button class="nav-btn prev-btn" type="button" aria-label="Show previous project"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn next-btn" type="button" aria-label="Show next project"><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
     </section>
@@ -610,6 +612,8 @@
         </div>
     </section>
 
+    </main>
+
     <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-glow"></div>
@@ -620,7 +624,7 @@
                 <!-- Brand -->
                 <div class="footer-brand">
                     <a href="#home" class="brand footer-logo-link">
-                        <img src="/static/images/logo.webp" alt="Roshan Damor" class="logo-image footer-logo" width="3965" height="1000" loading="lazy" decoding="async">
+                        <img src="/static/images/logo.webp" alt="Roshan Damor" class="logo-image footer-logo" loading="lazy" decoding="async">
                     </a>
                     <p class="footer-tagline">Crafting digital experiences<br>one line of code at a time.</p>
                     <div class="footer-socials">
@@ -633,7 +637,7 @@
 
                 <!-- Nav links -->
                 <div class="footer-col">
-                    <h4 class="footer-col-title">Navigation</h4>
+                    <h3 class="footer-col-title">Navigation</h3>
                     <ul class="footer-links">
                         <li><a href="#home">Home</a></li>
                         <li><a href="#about">About</a></li>
@@ -646,7 +650,7 @@
 
                 <!-- Tech stack -->
                 <div class="footer-col">
-                    <h4 class="footer-col-title">Tech Stack</h4>
+                    <h3 class="footer-col-title">Tech Stack</h3>
                     <ul class="footer-links">
                         <li><span>React &amp; Next.js</span></li>
                         <li><span>Node.js &amp; Django</span></li>
@@ -659,7 +663,7 @@
 
                 <!-- Contact -->
                 <div class="footer-col">
-                    <h4 class="footer-col-title">Contact</h4>
+                    <h3 class="footer-col-title">Contact</h3>
                     <ul class="footer-links footer-contact-list">
                         <li><i class="fas fa-envelope"></i><span>roshan.damor@example.com</span></li>
                         <li><i class="fas fa-phone"></i><span>+91 98765 43210</span></li>
@@ -710,10 +714,10 @@
                 <div class="blog-modal-article">
                     <p>Microservices architecture has become one of the most talked-about patterns in modern software engineering. Unlike the traditional monolithic approach where the entire application is deployed as a single unit, microservices break your application into small, independently deployable services — each responsible for a specific business capability.</p>
 
-                    <h4>What Are Microservices?</h4>
+                    <h3>What Are Microservices?</h3>
                     <p>Each microservice is a small application that owns its own data store, communicates over a well-defined API (usually HTTP/REST or message queues), and can be developed, tested, and deployed independently of others. Think of it as building a city with many specialised buildings instead of one giant tower that does everything.</p>
 
-                    <h4>Key Benefits</h4>
+                    <h3>Key Benefits</h3>
                     <ul>
                         <li><strong>Independent deployment</strong> — ship one service without touching others</li>
                         <li><strong>Technology flexibility</strong> — use Node.js for one service, Python for another</li>
@@ -722,7 +726,7 @@
                         <li><strong>Smaller codebases</strong> — teams own focused, understandable services</li>
                     </ul>
 
-                    <h4>A Simple Service Definition</h4>
+                    <h3>A Simple Service Definition</h3>
                     <p>Here's what a minimal Express-based microservice looks like in practice:</p>
                     <pre><code>// user-service/index.js
 const express = require('express');
@@ -746,13 +750,13 @@ app.post('/users', async (req, res) => {
 
 app.listen(3001, () => console.log('User Service on :3001'));</code></pre>
 
-                    <h4>Common Challenges</h4>
+                    <h3>Common Challenges</h3>
                     <p>Microservices are not a silver bullet. The distributed nature introduces problems that don't exist in a monolith: network latency, partial failures, distributed transactions, and the complexity of service discovery. You'll need to invest in observability tooling — centralised logging, distributed tracing with tools like Jaeger or Zipkin, and health checks.</p>
 
-                    <h4>Inter-Service Communication Patterns</h4>
+                    <h3>Inter-Service Communication Patterns</h3>
                     <p>There are two fundamental communication patterns: <strong>synchronous</strong> (direct REST or gRPC calls — good for real-time queries) and <strong>asynchronous</strong> (event-driven via Kafka, RabbitMQ, or AWS SQS — better for workflows where eventual consistency is acceptable). Always prefer async where you can — it decouples services more thoroughly and makes your system more resilient.</p>
 
-                    <h4>When Should You Use Microservices?</h4>
+                    <h3>When Should You Use Microservices?</h3>
                     <p>Microservices shine when you have multiple teams working independently, high scaling requirements for specific features, or when different parts of the system have very different tech needs. For a startup or small project, a well-structured monolith is almost always the right call. Build the monolith first, identify the seams, then extract services when the pain is real — not hypothetical.</p>
 
                     <p class="blog-modal-closing">The key is not to microservice everything from day one, but to design with clear boundaries and clean APIs so the transition, when it comes, is smooth. Start with a <em>modular monolith</em> and evolve from there.</p>
@@ -787,7 +791,7 @@ app.listen(3001, () => console.log('User Service on :3001'));</code></pre>
                 <div class="blog-modal-article">
                     <p>REST has served us well for decades, but as frontends grew more complex and mobile came to dominate, a new problem emerged: over-fetching and under-fetching. GraphQL, originally developed at Facebook and open-sourced in 2015, solves this elegantly by letting clients ask for exactly what they need — nothing more, nothing less.</p>
 
-                    <h4>REST vs GraphQL</h4>
+                    <h3>REST vs GraphQL</h3>
                     <p>With REST, you create endpoints for resources: <code>GET /users/1</code>, <code>GET /users/1/posts</code>, <code>GET /posts/5/comments</code>. To render a user's profile page with their latest posts, you might make 3+ round trips. GraphQL collapses this into a single request where you describe the shape of data you need:</p>
                     <pre><code>query GetProfile($userId: ID!) {
   user(id: $userId) {
@@ -803,7 +807,7 @@ app.listen(3001, () => console.log('User Service on :3001'));</code></pre>
   }
 }</code></pre>
 
-                    <h4>Setting Up Apollo Server with Node.js</h4>
+                    <h3>Setting Up Apollo Server with Node.js</h3>
                     <p>Apollo Server is the most popular GraphQL server for Node.js. Here's a production-ready setup with authentication middleware and DataLoader for N+1 prevention:</p>
                     <pre><code>const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@apollo/server/express4');
@@ -829,10 +833,10 @@ app.use('/graphql', expressMiddleware(server, {
   },
 }));</code></pre>
 
-                    <h4>The N+1 Problem and DataLoader</h4>
+                    <h3>The N+1 Problem and DataLoader</h3>
                     <p>The most common performance pitfall in GraphQL is the N+1 query problem. If you fetch a list of 20 posts and each post resolver independently queries its author, you'll fire 21 database queries. DataLoader solves this by batching all those individual IDs and making a single <code>SELECT * FROM users WHERE id IN (...)</code> call per request cycle.</p>
 
-                    <h4>Best Practices for Production</h4>
+                    <h3>Best Practices for Production</h3>
                     <ul>
                         <li><strong>Depth limiting</strong> — prevent deeply nested malicious queries that overload your DB</li>
                         <li><strong>Query complexity scoring</strong> — cap the total "cost" of a query before executing it</li>
@@ -841,7 +845,7 @@ app.use('/graphql', expressMiddleware(server, {
                         <li><strong>Schema versioning</strong> — use deprecation directives, never break a field without warning</li>
                     </ul>
 
-                    <h4>Subscriptions for Real-Time Data</h4>
+                    <h3>Subscriptions for Real-Time Data</h3>
                     <p>GraphQL Subscriptions via WebSockets let you push data to clients when events occur — perfect for live notifications, dashboards, or chat. Apollo Server supports this out of the box with <code>graphql-ws</code>. Define a subscription type in your schema, resolve it with an AsyncIterator backed by a pub/sub system (Redis Pub/Sub is the standard choice), and your clients get live updates.</p>
 
                     <p class="blog-modal-closing">GraphQL isn't a replacement for REST in every scenario — for simple CRUD APIs or public third-party integrations, REST is still the right tool. But for complex, data-driven frontends with multiple consumers, GraphQL's flexibility and strong typing make it a compelling choice.</p>
@@ -876,10 +880,10 @@ app.use('/graphql', expressMiddleware(server, {
                 <div class="blog-modal-article">
                     <p>Containers have fundamentally changed how we build, ship, and run software. Before Docker, the classic headache was "it works on my machine" — environment mismatches between dev, staging, and production caused endless bugs. Containers package your application with everything it needs: the runtime, libraries, environment variables, and config — making environments reproducible by design.</p>
 
-                    <h4>Why Containers Changed Everything</h4>
+                    <h3>Why Containers Changed Everything</h3>
                     <p>A container is not a virtual machine. VMs virtualise the hardware, running a full OS for each instance. Containers share the host OS kernel and isolate only the process and filesystem — making them orders of magnitude lighter, faster to start (milliseconds vs minutes), and much more efficient to run at scale.</p>
 
-                    <h4>Writing a Production Dockerfile</h4>
+                    <h3>Writing a Production Dockerfile</h3>
                     <p>A poorly written Dockerfile creates bloated images and slow builds. Here's a multi-stage build for a Node.js app — it compiles TypeScript in a build stage and copies only the compiled output into the final lean image:</p>
                     <pre><code># ── Build stage ───────────────────────────
 FROM node:20-alpine AS builder
@@ -903,10 +907,10 @@ USER node
 EXPOSE 3000
 CMD ["node", "dist/index.js"]</code></pre>
 
-                    <h4>Kubernetes Core Concepts</h4>
+                    <h3>Kubernetes Core Concepts</h3>
                     <p>Kubernetes (K8s) is the de-facto standard for orchestrating containers at scale. The key abstractions you'll use daily are: <strong>Pod</strong> (one or more containers that share a network namespace), <strong>Deployment</strong> (manages desired state and rolling updates for a set of Pods), <strong>Service</strong> (stable DNS + load balancing in front of Pods), and <strong>Ingress</strong> (HTTP routing from the outside world into Services).</p>
 
-                    <h4>A Real-World Deployment Manifest</h4>
+                    <h3>A Real-World Deployment Manifest</h3>
                     <pre><code>apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -939,10 +943,10 @@ spec:
                   name: app-secrets
                   key: database-url</code></pre>
 
-                    <h4>Zero-Downtime Deployments</h4>
+                    <h3>Zero-Downtime Deployments</h3>
                     <p>One of Kubernetes's most valuable features is rolling updates. When you push a new image, K8s gradually replaces old Pods with new ones, keeping at least a configurable number of healthy replicas available at all times. Combined with proper <code>readinessProbe</code> configuration, traffic is only routed to Pods that have passed their health check — so your users feel nothing during a deploy.</p>
 
-                    <h4>Observability in K8s</h4>
+                    <h3>Observability in K8s</h3>
                     <p>Running containers at scale without observability is flying blind. The standard stack is: <strong>Prometheus</strong> for metrics scraping, <strong>Grafana</strong> for dashboards, <strong>Loki</strong> for log aggregation, and <strong>Jaeger</strong> or <strong>Tempo</strong> for distributed tracing. Helm charts make standing all of this up straightforward — the <code>kube-prometheus-stack</code> chart gives you a full monitoring suite in a single command.</p>
 
                     <p class="blog-modal-closing">Containers and Kubernetes have become essential skills in the modern developer's toolkit. Start with Docker, get comfortable building and optimising images, then layer on Kubernetes once you understand that the ultimate goal isn't just running containers — it's building self-healing, scalable, observable systems.</p>
@@ -1030,7 +1034,7 @@ spec:
                 </div>
                 <div class="chat-input-row">
                     <input type="text" class="chat-input" id="rexi-input" placeholder="Ask me something..." autocomplete="off">
-                    <button class="chat-send-btn" id="rexi-send"><i class="fas fa-paper-plane"></i></button>
+                    <button class="chat-send-btn" id="rexi-send" type="button" aria-label="Send message to Rexi"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
@@ -1078,7 +1082,7 @@ spec:
         <i class="fas fa-volume-up"></i>
     </button>
 
-    <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Back to top">
+    <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Back to top" type="button">
         <i class="fas fa-chevron-up"></i>
     </button>
 
