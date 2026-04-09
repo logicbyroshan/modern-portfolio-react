@@ -182,71 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Skills Selector
-    const skillsSearch = document.getElementById('skills-search');
-    const skillsList = document.getElementById('skills-list');
-    const selectedSkillsContainer = document.getElementById('selected-skills');
-    const selectedSkills = new Set();
-
-    skillsSearch.addEventListener('focus', () => {
-        skillsList.classList.add('active');
-    });
-
-    skillsSearch.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        const options = skillsList.querySelectorAll('.skill-option');
-        options.forEach(option => {
-            const skillName = option.dataset.skill.toLowerCase();
-            option.style.display = skillName.includes(searchTerm) ? '' : 'none';
-        });
-    });
-
-    skillsList.addEventListener('click', (e) => {
-        const option = e.target.closest('.skill-option');
-        if (option) {
-            const skill = option.dataset.skill;
-            const icon = option.querySelector('i').className;
-            
-            if (selectedSkills.has(skill)) {
-                selectedSkills.delete(skill);
-                option.classList.remove('selected');
-            } else {
-                selectedSkills.add(skill);
-                option.classList.add('selected');
-            }
-            renderSelectedSkills(icon, skill);
-        }
-    });
-
-    function renderSelectedSkills(icon, skill) {
-        selectedSkillsContainer.innerHTML = '';
-        const skillsArray = Array.from(selectedSkills);
-        skillsArray.forEach(skillName => {
-            const skillOption = skillsList.querySelector(`[data-skill="${skillName}"]`);
-            const skillIcon = skillOption.querySelector('i').className;
-            const tag = document.createElement('div');
-            tag.className = 'skill-tag';
-            tag.innerHTML = `
-                <i class="${skillIcon}"></i>
-                <span>${skillName}</span>
-                <span class="remove-skill" onclick="removeSkill('${skillName}')">&times;</span>
-            `;
-            selectedSkillsContainer.appendChild(tag);
-        });
-    }
-
-    window.removeSkill = function(skill) {
-        selectedSkills.delete(skill);
-        const option = skillsList.querySelector(`[data-skill="${skill}"]`);
-        if (option) option.classList.remove('selected');
-        renderSelectedSkills();
-    };
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.skills-selector')) {
-            skillsList.classList.remove('active');
-        }
-    });
+    const form = document.getElementById('create-project-form');
 
     // Draft and Publish Button Handlers
     const saveDraftBtn = document.getElementById('save-draft-btn');
@@ -254,19 +190,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusInput = document.getElementById('id_status');
 
     if (saveDraftBtn) {
-        saveDraftBtn.addEventListener('click', function() {
+        saveDraftBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!form) return;
             // Set status to draft
             if (statusInput) {
                 statusInput.value = 'draft';
             }
             // Trigger form submission
-            form.dispatchEvent(new Event('submit', { cancelable: true }));
+            form.requestSubmit();
         });
     }
 
     if (publishBtn) {
         publishBtn.addEventListener('click', function(e) {
             e.preventDefault();
+            if (!form) return;
             // Set status to active (or keep current status if editing)
             if (statusInput) {
                 const currentStatus = statusInput.value;
@@ -276,12 +215,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             // Trigger form submission
-            form.dispatchEvent(new Event('submit', { cancelable: true }));
+            form.requestSubmit();
         });
     }
 
     // Form Submission
-    const form = document.getElementById('create-project-form');
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -303,7 +241,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': formData.get('csrfmiddlewaretoken')
                 }
             })
-            .then(response => response.json())
+            .then(async response => {
+                const contentType = response.headers.get('content-type') || '';
+                const isJson = contentType.includes('application/json');
+                const payload = isJson ? await response.json() : {};
+
+                if (!response.ok) {
+                    return {
+                        success: false,
+                        errors: payload.errors || { general: [payload.message || 'Failed to save project.'] },
+                    };
+                }
+
+                return payload;
+            })
             .then(data => {
                 if (data.success) {
                     const isDraft = formData.get('status') === 'draft';

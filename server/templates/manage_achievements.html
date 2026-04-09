@@ -31,10 +31,8 @@
         {% for achievement in recent_achievements %}
         <div class="achievement-card {% if achievement.is_draft %}draft{% endif %} {% if not achievement.is_active %}inactive{% endif %}" data-achievement-id="{{ achievement.id }}">
             <div class="achievement-icon">
-                {% if achievement.icon_type == 'upload' and achievement.icon_image %}
-                <img src="{{ achievement.icon_image.url }}" alt="{{ achievement.title }}">
-                {% elif achievement.icon_type == 'fontawesome' and achievement.icon_class %}
-                <i class="{{ achievement.icon_class }}"></i>
+                {% if achievement.category and achievement.category.icon %}
+                <i class="{{ achievement.category.icon }}"></i>
                 {% else %}
                 <i class="fas fa-award"></i>
                 {% endif %}

@@ -58,10 +58,8 @@
          data-date="{{ achievement.achievement_date|date:'Y-m-d' }}"
          data-achievement-id="{{ achievement.id }}">
         <div class="achievement-icon">
-            {% if achievement.icon_type == 'upload' and achievement.icon_image %}
-            <img src="{{ achievement.icon_image.url }}" alt="{{ achievement.title }}">
-            {% elif achievement.icon_type == 'fontawesome' and achievement.icon_class %}
-            <i class="{{ achievement.icon_class }}"></i>
+            {% if achievement.category and achievement.category.icon %}
+            <i class="{{ achievement.category.icon }}"></i>
             {% else %}
             <i class="fas fa-award"></i>
             {% endif %}
@@ -70,7 +68,7 @@
             <h4>{{ achievement.title }}</h4>
             <p class="achievement-issuer"><i class="fas fa-building"></i> {{ achievement.issuing_organization }}</p>
             <p class="achievement-date"><i class="fas fa-calendar-alt"></i> {{ achievement.achievement_date|date:"F Y" }}</p>
-            <span class="achievement-type">{{ achievement.get_category_display }}</span>
+            <span class="achievement-type">{{ achievement.category.name|default:"Uncategorized" }}</span>
         </div>
         {% if achievement.is_draft %}
         <span class="status-badge status-draft">Draft</span>

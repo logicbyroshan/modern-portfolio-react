@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
+from django.db import IntegrityError
 from .models import (
     Project,
     Category,
@@ -14,6 +15,13 @@ from .models import (
 from .forms import ProjectForm, CategoryForm, UserProfileForm, ExperienceForm, SkillForm, AchievementForm
 from django.utils.text import slugify
 import json
+
+
+def parse_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def generate_unique_slug(model_class, raw_value, slug_field="slug", max_attempts=1000):
@@ -73,8 +81,14 @@ def manage_projects(request):
     if request.method == "POST":
         # Handle toggle active/inactive
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            project_id = request.POST.get("project_id")
+            project_id = parse_int(request.POST.get("project_id"))
             is_active = request.POST.get("is_active") == "true"
+
+            if project_id is None:
+                return JsonResponse(
+                    {"success": False, "message": "Invalid project id"},
+                    status=400,
+                )
 
             try:
                 project = Project.objects.get(id=project_id)
@@ -103,7 +117,32 @@ def create_project(request):
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
-            project = form.save()
+            try:
+                project = form.save()
+            except IntegrityError:
+                error_payload = {
+                    "slug": [
+                        "Unable to save project due to a duplicate URL slug. Please try a different title."
+                    ]
+                }
+                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    return JsonResponse(
+                        {"success": False, "errors": error_payload},
+                        status=400,
+                    )
+                messages.error(
+                    request,
+                    "Unable to save project due to a duplicate URL slug. Please try again.",
+                )
+                categories = Category.objects.all()
+                return render(
+                    request,
+                    "create_project.html",
+                    {
+                        "form": form,
+                        "categories": categories,
+                    },
+                )
 
             # Handle screenshot uploads
             screenshot_files = request.FILES.getlist("screenshots")
@@ -147,7 +186,34 @@ def edit_project(request, project_id):
     if request.method == "POST":
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
-            project = form.save()
+            try:
+                project = form.save()
+            except IntegrityError:
+                error_payload = {
+                    "slug": [
+                        "Unable to save project due to a duplicate URL slug. Please try a different title."
+                    ]
+                }
+                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    return JsonResponse(
+                        {"success": False, "errors": error_payload},
+                        status=400,
+                    )
+                messages.error(
+                    request,
+                    "Unable to save project due to a duplicate URL slug. Please try again.",
+                )
+                categories = Category.objects.all()
+                return render(
+                    request,
+                    "create_project.html",
+                    {
+                        "form": form,
+                        "project": project,
+                        "categories": categories,
+                        "is_edit": True,
+                    },
+                )
 
             # Handle screenshot uploads
             screenshot_files = request.FILES.getlist("screenshots")
@@ -237,8 +303,14 @@ def manage_experience(request):
     if request.method == "POST":
         # Handle toggle active/inactive
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            experience_id = request.POST.get("experience_id")
+            experience_id = parse_int(request.POST.get("experience_id"))
             is_active = request.POST.get("is_active") == "true"
+
+            if experience_id is None:
+                return JsonResponse(
+                    {"success": False, "message": "Invalid experience id"},
+                    status=400,
+                )
 
             try:
                 experience = Experience.objects.get(id=experience_id)
@@ -443,8 +515,14 @@ def manage_skills(request):
         request.method == "POST"
         and request.headers.get("X-Requested-With") == "XMLHttpRequest"
     ):
-        skill_id = request.POST.get("skill_id")
+        skill_id = parse_int(request.POST.get("skill_id"))
         is_active = request.POST.get("is_active") == "true"
+
+        if skill_id is None:
+            return JsonResponse(
+                {"success": False, "error": "Invalid skill id"},
+                status=400,
+            )
 
         try:
             skill = Skill.objects.get(id=skill_id)
@@ -555,8 +633,14 @@ def delete_skill(request, skill_id):
 def manage_achievements(request):
     """Manage achievements view - show recent 6 achievements"""
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        achievement_id = request.POST.get("achievement_id")
+        achievement_id = parse_int(request.POST.get("achievement_id"))
         is_active = request.POST.get("is_active") == "true"
+
+        if achievement_id is None:
+            return JsonResponse(
+                {"success": False, "error": "Invalid achievement id"},
+                status=400,
+            )
 
         try:
             achievement = Achievement.objects.get(id=achievement_id)

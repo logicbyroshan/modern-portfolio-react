@@ -78,89 +78,19 @@
 {% endblock %}
 
 {% block modals %}
-<!-- Delete Confirmation Modal -->
-<div class="modal-overlay" id="delete-confirm-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 99999;">
-    <div class="modal-content" style="background: #1e293b; border-radius: 12px; max-width: 500px; width: 90%; padding: 0; position: relative; z-index: 100000; pointer-events: auto;">
-        <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid #334155;">
-            <h2 style="margin: 0; font-size: 1.5rem; color: #f1f5f9;">Confirm Deletion</h2>
-        </div>
-        <div class="modal-body" style="padding: 1.5rem;">
-            <p style="margin: 0; color: #94a3b8; line-height: 1.6;">Are you sure you want to permanently delete this project? This action cannot be undone.</p>
-        </div>
-        <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #334155; display: flex; gap: 1rem; justify-content: flex-end;">
-            <button type="button" id="modal-cancel-btn" onclick="closeProjectModal()" style="padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; background: #334155; color: #f1f5f9; pointer-events: auto;">Cancel</button>
-            <button type="button" id="modal-confirm-btn" onclick="confirmDeleteProject()" style="padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; background: #ef4444; color: white; pointer-events: auto;">Delete</button>
+<div class="modal-overlay" id="delete-confirm-modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Confirm Deletion</h2></div>
+        <div class="modal-body"><p>Are you sure you want to permanently delete this project? This action cannot be undone.</p></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+            <button type="button" class="btn-danger" id="modal-confirm-btn">Delete</button>
         </div>
     </div>
 </div>
-<style>
-    #delete-confirm-modal.active {
-        display: flex !important;
-    }
-    #delete-confirm-modal.active * {
-        pointer-events: auto;
-    }
-</style>
-<script>
-    var pendingDeleteProjectId = null;
-    
-    function closeProjectModal() {
-        var modal = document.getElementById('delete-confirm-modal');
-        if (modal) {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-        pendingDeleteProjectId = null;
-    }
-    
-    function confirmDeleteProject() {
-        if (pendingDeleteProjectId) {
-            fetch('/projects/' + pendingDeleteProjectId + '/delete/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeProjectModal();
-                    var card = document.querySelector('[data-project-id="' + pendingDeleteProjectId + '"]');
-                    if (card) {
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.9)';
-                        setTimeout(function() { card.remove(); }, 300);
-                    }
-                    alert('Project deleted successfully!');
-                } else {
-                    alert('Failed to delete project.');
-                }
-            })
-            .catch(function() {
-                alert('An error occurred.');
-            });
-        }
-    }
-    
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-</script>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/manage-projects.js' %}?v=6"></script>
+<script src="{% static 'js/manage-projects.js' %}?v=7"></script>
 {% endblock %}
 

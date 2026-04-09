@@ -112,17 +112,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentProjectId = null;
     let currentProjectTitle = null;
     
-    console.log('View-all-projects.js loaded');
-    console.log('Delete buttons:', deleteButtons.length);
-    console.log('Modal:', modal);
-    console.log('Cancel btn:', cancelBtn);
-    console.log('Confirm btn:', confirmBtn);
-    
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Delete button clicked');
             currentProjectId = this.dataset.projectId;
             currentProjectTitle = this.dataset.projectTitle;
             
@@ -133,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal Cancel Button
     if (cancelBtn) {
         cancelBtn.addEventListener('click', function(e) {
-            console.log('Cancel clicked');
             e.preventDefault();
             e.stopPropagation();
             closeDeleteModal();
@@ -143,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Modal Confirm Button
     if (confirmBtn) {
         confirmBtn.addEventListener('click', function(e) {
-            console.log('Confirm delete clicked');
             e.preventDefault();
             e.stopPropagation();
             if (currentProjectId) {
@@ -171,13 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show Delete Confirmation Modal
     function showDeleteModal(projectId, projectTitle) {
         if (!modal) return;
-        
-        // Set global variable for inline onclick handlers
-        if (typeof pendingDeleteProjectId !== 'undefined') {
-            pendingDeleteProjectId = projectId;
-        }
-        
+
         const modalBody = modal.querySelector('.modal-body p');
+        if (!modalBody) return;
         
         // Update modal text
         if (projectTitle) {
@@ -215,7 +202,14 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(async response => {
+            const contentType = response.headers.get('content-type') || '';
+            const payload = contentType.includes('application/json') ? await response.json() : {};
+            if (!response.ok) {
+                throw new Error(payload.message || 'Failed to update project status.');
+            }
+            return payload;
+        })
         .then(data => {
             if (data.success) {
                 showNotification('Project status updated successfully!', 'success');
@@ -247,7 +241,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(async response => {
+            const contentType = response.headers.get('content-type') || '';
+            const payload = contentType.includes('application/json') ? await response.json() : {};
+            if (!response.ok) {
+                throw new Error(payload.message || 'Failed to delete project.');
+            }
+            return payload;
+        })
         .then(data => {
             if (data.success) {
                 closeDeleteModal();
@@ -285,12 +286,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 showNotification('Project deleted successfully!', 'success');
             } else {
-                showNotification(data.error || 'Failed to delete project.', 'error');
+                showNotification(data.message || 'Failed to delete project.', 'error');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            showNotification('An error occurred. Please try again.', 'error');
+            showNotification(error.message || 'An error occurred. Please try again.', 'error');
         });
     }
 

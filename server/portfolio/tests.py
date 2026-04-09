@@ -195,3 +195,323 @@ class AdminSubdomainAccessTests(TestCase):
 
 		self.assertEqual(response.status_code, 302)
 		self.assertIn("/admin/login/", response["Location"])
+
+
+@override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)
+class AdminCrudFlowTests(TestCase):
+	def setUp(self):
+		user_model = get_user_model()
+		self.user = user_model.objects.create_user(
+			username="admin-flow",
+			password="pass1234",
+		)
+		self.client.force_login(self.user)
+
+		self.project_category = Category.objects.create(
+			name="Flow Project",
+			slug="flow-project",
+			category_type="project",
+		)
+		self.experience_category = Category.objects.create(
+			name="Flow Experience",
+			slug="flow-experience",
+			category_type="experience",
+		)
+		self.skill_category = Category.objects.create(
+			name="Flow Skill",
+			slug="flow-skill",
+			category_type="skill",
+		)
+		self.achievement_category = Category.objects.create(
+			name="Flow Achievement",
+			slug="flow-achievement",
+			category_type="achievement",
+		)
+
+		self.project = Project.objects.create(
+			title="Existing Project",
+			slug="existing-project",
+			description="Existing project",
+			technologies="Django",
+			category=self.project_category,
+			status="active",
+			is_active=True,
+		)
+		self.experience = Experience.objects.create(
+			position="Existing Engineer",
+			slug="existing-engineer",
+			company_name="Example Corp",
+			start_date=date(2024, 1, 1),
+			short_description="Existing experience",
+			category=self.experience_category,
+			is_active=True,
+			is_draft=False,
+		)
+		self.skill = Skill.objects.create(
+			name="Existing Skill",
+			slug="existing-skill",
+			skill_level="advanced",
+			proficiency=85,
+			category=self.skill_category,
+			is_active=True,
+			is_draft=False,
+		)
+		self.achievement = Achievement.objects.create(
+			title="Existing Achievement",
+			slug="existing-achievement",
+			issuing_organization="Org",
+			achievement_date=date(2024, 5, 1),
+			short_description="Existing achievement",
+			category=self.achievement_category,
+			is_active=True,
+			is_draft=False,
+		)
+
+	def test_management_urls_load_for_authenticated_user(self):
+		urls = [
+			reverse("dashboard"),
+			reverse("manage_projects"),
+			reverse("create_project"),
+			reverse("edit_project", args=[self.project.id]),
+			reverse("list_projects"),
+			reverse("manage_experience"),
+			reverse("create_experience"),
+			reverse("edit_experience", args=[self.experience.id]),
+			reverse("list_experience"),
+			reverse("manage_skills"),
+			reverse("create_skill"),
+			reverse("edit_skill", args=[self.skill.id]),
+			reverse("list_skills"),
+			reverse("manage_achievements"),
+			reverse("create_achievement"),
+			reverse("edit_achievement", args=[self.achievement.id]),
+			reverse("list_achievements"),
+			reverse("manage_categories"),
+			reverse("manage_details"),
+		]
+
+		for url in urls:
+			response = self.client.get(url)
+			self.assertEqual(response.status_code, 200, msg=f"URL failed: {url}")
+
+	def test_project_create_generates_unique_slug_and_ajax_validation(self):
+		first_response = self.client.post(
+			reverse("create_project"),
+			{
+				"title": "Flow Generated Slug",
+				"project_name": "Flow Generated Slug",
+				"category": self.project_category.id,
+				"description": "Project body",
+				"technologies": "Django,React",
+				"status": "active",
+				"is_active": "on",
+				"order": 0,
+			},
+		)
+		self.assertEqual(first_response.status_code, 302)
+
+		first_project = Project.objects.get(title="Flow Generated Slug")
+		self.assertTrue(first_project.slug)
+
+		second_response = self.client.post(
+			reverse("create_project"),
+			{
+				"title": "Flow Generated Slug",
+				"project_name": "Flow Generated Slug Copy",
+				"category": self.project_category.id,
+				"description": "Second project body",
+				"technologies": "Django",
+				"status": "active",
+				"is_active": "on",
+				"order": 0,
+			},
+		)
+		self.assertEqual(second_response.status_code, 302)
+
+		projects = Project.objects.filter(title="Flow Generated Slug").order_by("id")
+		self.assertEqual(projects.count(), 2)
+		self.assertNotEqual(projects[0].slug, projects[1].slug)
+
+		invalid_response = self.client.post(
+			reverse("create_project"),
+			{
+				"title": "",
+				"description": "",
+				"technologies": "",
+			},
+			HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+		)
+		self.assertEqual(invalid_response.status_code, 400)
+		self.assertFalse(invalid_response.json()["success"])
+
+	def test_project_edit_and_delete_ajax(self):
+		response = self.client.post(
+			reverse("edit_project", args=[self.project.id]),
+			{
+				"title": "Updated Existing Project",
+				"project_name": "Updated Existing Project",
+				"category": self.project_category.id,
+				"description": "Updated description",
+				"technologies": "Django,HTMX",
+				"status": "active",
+				"is_active": "on",
+				"order": 1,
+			},
+		)
+		self.assertEqual(response.status_code, 302)
+		self.project.refresh_from_db()
+		self.assertEqual(self.project.title, "Updated Existing Project")
+
+		delete_response = self.client.post(
+			reverse("delete_project", args=[self.project.id]),
+			HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+		)
+		self.assertEqual(delete_response.status_code, 200)
+		self.assertTrue(delete_response.json()["success"])
+		self.assertFalse(Project.objects.filter(id=self.project.id).exists())
+
+	def test_experience_skill_and_achievement_crud_flows(self):
+		experience_create = self.client.post(
+			reverse("create_experience"),
+			{
+				"position": "Flow Experience",
+				"employment_type": "full-time",
+				"employment_status": "current",
+				"category": self.experience_category.id,
+				"company_name": "Flow Company",
+				"start_date": "2024-01-01",
+				"short_description": "Flow experience description",
+				"is_draft": "false",
+			},
+		)
+		self.assertEqual(experience_create.status_code, 302)
+		experience_obj = Experience.objects.get(position="Flow Experience")
+		self.assertTrue(experience_obj.slug)
+
+		experience_edit = self.client.post(
+			reverse("edit_experience", args=[experience_obj.id]),
+			{
+				"position": "Flow Experience Updated",
+				"employment_type": "full-time",
+				"employment_status": "current",
+				"category": self.experience_category.id,
+				"company_name": "Flow Company",
+				"start_date": "2024-01-01",
+				"short_description": "Updated flow experience",
+				"is_draft": "false",
+				"order": 0,
+			},
+		)
+		self.assertEqual(experience_edit.status_code, 302)
+
+		experience_delete = self.client.post(
+			reverse("delete_experience", args=[experience_obj.id]),
+			HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+		)
+		self.assertEqual(experience_delete.status_code, 200)
+		self.assertTrue(experience_delete.json()["success"])
+
+		skill_create = self.client.post(
+			reverse("create_skill"),
+			{
+				"name": "Flow Skill",
+				"skill_level": "advanced",
+				"category": self.skill_category.id,
+				"proficiency": 90,
+				"description": "Flow skill description",
+				"icon_type": "fontawesome",
+				"icon_class": "fas fa-code",
+				"certificate_type": "link",
+				"certificate_url": "https://example.com/skill-cert",
+				"is_active": "on",
+				"is_draft": "",
+				"order": 0,
+			},
+		)
+		self.assertEqual(skill_create.status_code, 302)
+		skill_obj = Skill.objects.get(name="Flow Skill")
+
+		skill_edit = self.client.post(
+			reverse("edit_skill", args=[skill_obj.id]),
+			{
+				"name": "Flow Skill Updated",
+				"skill_level": "expert",
+				"category": self.skill_category.id,
+				"proficiency": 95,
+				"description": "Updated flow skill",
+				"icon_type": "fontawesome",
+				"icon_class": "fas fa-code",
+				"certificate_type": "link",
+				"certificate_url": "https://example.com/skill-cert",
+				"is_active": "on",
+				"is_draft": "",
+				"order": 0,
+			},
+		)
+		self.assertEqual(skill_edit.status_code, 302)
+
+		skill_delete = self.client.post(
+			reverse("delete_skill", args=[skill_obj.id]),
+			HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+		)
+		self.assertEqual(skill_delete.status_code, 200)
+		self.assertTrue(skill_delete.json()["success"])
+
+		achievement_create = self.client.post(
+			reverse("create_achievement"),
+			{
+				"title": "Flow Achievement",
+				"category": self.achievement_category.id,
+				"issuing_organization": "Flow Org",
+				"achievement_date": "2024-04-01",
+				"short_description": "Flow achievement description",
+				"credential_type": "link",
+				"credential_url": "https://example.com/achievement",
+				"is_active": "True",
+				"is_draft": "False",
+				"order": 0,
+			},
+		)
+		self.assertEqual(achievement_create.status_code, 302)
+		achievement_obj = Achievement.objects.get(title="Flow Achievement")
+
+		achievement_edit = self.client.post(
+			reverse("edit_achievement", args=[achievement_obj.id]),
+			{
+				"title": "Flow Achievement Updated",
+				"category": self.achievement_category.id,
+				"issuing_organization": "Flow Org",
+				"achievement_date": "2024-04-01",
+				"short_description": "Updated flow achievement",
+				"credential_type": "link",
+				"credential_url": "https://example.com/achievement",
+				"is_active": "True",
+				"is_draft": "False",
+				"order": 0,
+			},
+		)
+		self.assertEqual(achievement_edit.status_code, 302)
+
+		achievement_delete = self.client.post(
+			reverse("delete_achievement", args=[achievement_obj.id]),
+			HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+		)
+		self.assertEqual(achievement_delete.status_code, 200)
+		self.assertTrue(achievement_delete.json()["success"])
+
+	def test_toggle_endpoints_return_400_for_invalid_ids(self):
+		cases = [
+			(reverse("manage_projects"), {"project_id": "abc", "is_active": "true"}),
+			(reverse("manage_experience"), {"experience_id": "abc", "is_active": "true"}),
+			(reverse("manage_skills"), {"skill_id": "abc", "is_active": "true"}),
+			(reverse("manage_achievements"), {"achievement_id": "abc", "is_active": "true"}),
+		]
+
+		for url, payload in cases:
+			response = self.client.post(
+				url,
+				payload,
+				HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+			)
+			self.assertEqual(response.status_code, 400, msg=f"Expected 400 for {url}")
+			self.assertFalse(response.json().get("success", False))
