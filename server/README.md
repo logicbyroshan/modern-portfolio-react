@@ -52,6 +52,7 @@ python manage.py test
 - Intended admin domain: `admin.roshandmaor.me`
 - Legacy-compatible aliases are supported for `roshandamor.me` hostnames.
 - Use PostgreSQL in production
+- For a full DigitalOcean deployment runbook, see [../DIGITALOCEAN_PRODUCTION_GUIDE.md](../DIGITALOCEAN_PRODUCTION_GUIDE.md)
 
 ## Admin subdomain checklist
 1. DNS records exist for both `www.roshandmaor.me` and `admin.roshandmaor.me`.

@@ -469,6 +469,7 @@ python manage.py check --deploy
 ```
 
 7. Build frontend with `npm run build`.
+8. For a DigitalOcean-focused runbook, use [DIGITALOCEAN_PRODUCTION_GUIDE.md](DIGITALOCEAN_PRODUCTION_GUIDE.md).
 
 ---
 

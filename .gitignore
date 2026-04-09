@@ -21,6 +21,10 @@ __pycache__/
 .env.*
 server/.env
 client/.env
+!server/.env.example
+!server/.env.production.example
+!client/.env.example
+!client/.env.production.example
 
 # OS/editor
 .DS_Store
