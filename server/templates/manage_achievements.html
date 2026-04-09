@@ -41,7 +41,7 @@
                 <h4>{{ achievement.title }}</h4>
                 <p class="achievement-issuer"><i class="fas fa-building"></i> {{ achievement.issuing_organization }}</p>
                 <p class="achievement-date"><i class="fas fa-calendar-alt"></i> {{ achievement.achievement_date|date:"F Y" }}</p>
-                <span class="achievement-type">{{ achievement.get_category_display }}</span>
+                <span class="achievement-type">{{ achievement.category.name|default:"Uncategorized" }}</span>
             </div>
             <div class="achievement-actions">
                 <label class="toggle-switch">

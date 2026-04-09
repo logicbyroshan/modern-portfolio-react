@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Create Experience JS loaded');
-    
+
     // Initialize TinyMCE
     tinymce.init({
         selector: '.tinymce-editor',
@@ -15,12 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'alignleft aligncenter alignright alignjustify | ' +
             'bullist numlist outdent indent | link image | ' +
             'forecolor backcolor | code fullscreen | help',
-        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }',
-        setup: function(editor) {
-            editor.on('init', function() {
-                console.log('TinyMCE initialized for:', editor.id);
-            });
-        }
+        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; }'
     });
 
     // Currently Working Checkbox
@@ -246,12 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (draftBtn) {
         draftBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Draft button clicked');
             
             // Trigger TinyMCE save
             if (typeof tinymce !== 'undefined') {
                 tinymce.triggerSave();
-                console.log('TinyMCE content saved');
             }
             
             // Set is_draft to true
@@ -263,7 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.appendChild(draftInput);
             }
             draftInput.value = 'true';
-            console.log('Submitting form as draft');
             form.submit();
         });
     }
@@ -271,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (publishBtn) {
         publishBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Publish button clicked');
             
             // Validate form before submission
             if (!validateForm()) {
@@ -281,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Trigger TinyMCE save
             if (typeof tinymce !== 'undefined') {
                 tinymce.triggerSave();
-                console.log('TinyMCE content saved');
             }
             
             // Set is_draft to false
@@ -293,17 +282,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.appendChild(draftInput);
             }
             draftInput.value = 'false';
-            console.log('Submitting form as published');
             form.submit();
         });
     }
 
     form.addEventListener('submit', (e) => {
-        console.log('Form submitting...');
         // Trigger TinyMCE save before form submission
         if (typeof tinymce !== 'undefined') {
             tinymce.triggerSave();
-            console.log('TinyMCE content saved on submit');
         }
     });
 });

@@ -1,7 +1,5 @@
 // Manage Categories - Complete AJAX Implementation
 
-console.log('Manage Categories JS loaded');
-
 // Get CSRF token
 function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -36,8 +34,7 @@ function showNotification(message, type = 'success') {
 
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
-    
+
     // Auto-generate slug from name
     const categoryNameInput = document.getElementById('category-name');
     if (categoryNameInput) {
@@ -57,12 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open create category modal
     const addCategoryBtn = document.getElementById('add-category-btn');
-    console.log('Add Category Button:', addCategoryBtn);
-    
+
     if (addCategoryBtn) {
         addCategoryBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Add Category button clicked');
             document.getElementById('modal-title').textContent = 'Add New Category';
             document.getElementById('form-action').value = 'create';
             document.getElementById('category-id').value = '';
@@ -70,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('category-color').value = '#3b82f6';
             document.getElementById('category-icon').value = 'fas fa-folder';
             categoryModal.classList.add('open');
-            console.log('Modal should be open now');
         });
     }
 

@@ -23,8 +23,10 @@ function App() {
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 8000);
 
-    fetch('/portfolio-body.html')
+    fetch('/portfolio-body.html', { signal: controller.signal })
       .then((response) => response.text())
       .then((html) => {
         if (active) {
@@ -39,6 +41,8 @@ function App() {
 
     return () => {
       active = false;
+      window.clearTimeout(timeoutId);
+      controller.abort();
     };
   }, []);
 
@@ -61,13 +65,19 @@ function App() {
 
         const script = document.createElement('script');
         script.src = src;
-        script.async = true;
+        script.async = false;
         script.setAttribute('data-legacy-src', src);
         script.onload = () => resolve();
         script.onerror = () => reject(new Error(`Failed to load ${src}`));
         document.body.appendChild(script);
         appendedScripts.push(script);
       });
+
+    const loadScriptsSequentially = async (scripts) => {
+      for (const src of scripts) {
+        await loadScript(src);
+      }
+    };
 
     const scheduleDeferred = (callback) => {
       if ('requestIdleCallback' in window) {
@@ -128,7 +138,7 @@ function App() {
         // Keep static fallback content if API is not reachable.
       }
 
-      await Promise.all(CORE_LEGACY_SCRIPTS.map((src) => loadScript(src)));
+      await loadScriptsSequentially(CORE_LEGACY_SCRIPTS);
 
       if (cancelled) {
         return;

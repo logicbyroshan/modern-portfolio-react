@@ -338,7 +338,7 @@ This removes cross-origin friction during local development.
 
 ### 9.3 Authentication and Permissions
 
-- Admin/content routes are login-protected.
+- Admin/content routes are staff-restricted.
 - Public API reads use safe-method-only permission.
 - Contact endpoint intentionally allows anonymous access with protection heuristics.
 
@@ -356,8 +356,14 @@ Important backend environment variables:
 - `DJANGO_DEBUG`
 - `DJANGO_ALLOWED_HOSTS`
 - `DB_ENGINE`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
+- `DB_CONN_MAX_AGE`, `DB_CONN_HEALTH_CHECKS`
+- `DB_CONNECT_TIMEOUT`, `DB_STATEMENT_TIMEOUT_MS`, `DB_OPTIONS`
+- `DISALLOW_SQLITE_IN_PRODUCTION`
 - `CORS_ALLOWED_ORIGINS`
+- `CORS_ALLOW_CREDENTIALS`
+- `CORS_ALLOWED_METHODS`
 - `CSRF_TRUSTED_ORIGINS`
+- `TRUST_X_FORWARDED_FOR`, `TRUST_X_FORWARDED_PROTO`
 - `TINYMCE_API_KEY`
 - `SECURE_SSL_REDIRECT`
 - `SECURE_HSTS_SECONDS`
@@ -366,6 +372,10 @@ Important backend environment variables:
 
 - `VITE_API_BASE_URL`
 	- Default recommended value: `/api`
+- `VITE_API_TIMEOUT_MS`
+	- Request timeout for hydration fetches (recommended: `7000`)
+- `VITE_API_RETRY_ATTEMPTS`
+	- Retries for transient API failures (recommended: `1`)
 
 ---
 
@@ -469,19 +479,35 @@ python manage.py check --deploy
 
 ## 14. Performance and Scalability Notes
 
-### 14.1 Current Optimizations
+### 14.1 Implemented Optimizations
 
-- DRF pagination default enabled globally.
-- Query filtering in viewsets to reduce payload size.
-- Contact message indexes tuned for frequent anti-spam checks.
-- Frontend API requests executed in parallel for hydration.
+- Added Postgres-friendly composite indexes for high-traffic filters and sort patterns on projects, experience, skills, achievements, categories, and media child tables.
+- Removed category count N+1 behavior by adding annotated item counts and prefetching category relations with counts.
+- Reduced ORM payload overhead on read APIs via selective field loading (`only`) and explicit prefetch plans.
+- Optimized summary endpoint counts using filtered aggregates.
+- Wrapped multi-step create/update flows for project/experience media in atomic transactions and `bulk_create` for fewer writes and stronger consistency.
+- Improved frontend hydration reliability with request timeouts, retry logic, and `Promise.allSettled` handling.
+- Reduced frontend API load by using lightweight endpoints (`/projects/featured/`, `/skills/top/`) during initial hydration.
+- Enforced deterministic core legacy script load order to avoid race-condition failures.
 
-### 14.2 Scaling Path
+### 14.2 PostgreSQL Runtime Tuning (Recommended Baseline)
 
-- Add response caching for frequently read endpoints.
+| Variable | Recommended | Purpose |
+| --- | --- | --- |
+| `DB_CONN_MAX_AGE` | `60` | Reuse DB connections to reduce connection setup cost |
+| `DB_CONN_HEALTH_CHECKS` | `True` | Automatically verify reused connections |
+| `DB_CONNECT_TIMEOUT` | `10` | Fail fast on unreachable DB/network |
+| `DB_STATEMENT_TIMEOUT_MS` | `15000` | Bound long-running SQL to protect app threads |
+| `DB_OPTIONS` | empty or custom | Advanced Postgres options (`-c key=value`) |
+| `DISALLOW_SQLITE_IN_PRODUCTION` | `True` | Prevent accidental SQLite use in production |
+
+### 14.3 Scaling Path
+
+- Add edge caching for read-heavy API responses.
 - Move media to object storage (S3-compatible) behind CDN.
 - Introduce async jobs (email notifications, media processing).
 - Add dedicated rate limiting at reverse proxy layer.
+- Enable `pg_stat_statements` and review top slow queries regularly.
 
 ---
 

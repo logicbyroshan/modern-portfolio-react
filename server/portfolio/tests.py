@@ -2,7 +2,9 @@ from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from .models import Achievement, Category, Experience, Project, Skill
@@ -79,7 +81,11 @@ class SlugGenerationTests(TestCase):
 		Skill.objects.create(name="JavaScript", slug="javascript", proficiency=80)
 
 		user_model = get_user_model()
-		user = user_model.objects.create_user(username="admin", password="pass1234")
+		user = user_model.objects.create_user(
+			username="admin",
+			password="pass1234",
+			is_staff=True,
+		)
 		self.client.force_login(user)
 
 		response = self.client.post(
@@ -183,6 +189,41 @@ class APIKeyPermissionTests(TestCase):
 
 
 @override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)
+class ApiQueryPerformanceTests(TestCase):
+	def setUp(self):
+		self.category = Category.objects.create(
+			name="Performance Category",
+			slug="performance-category",
+			category_type="project",
+		)
+
+		for index in range(8):
+			Project.objects.create(
+				title=f"Perf Project {index}",
+				slug=f"perf-project-{index}",
+				description="Performance payload",
+				technologies="Django",
+				category=self.category,
+				status="active",
+				is_active=True,
+			)
+
+	def test_projects_endpoint_query_count_stays_bounded(self):
+		with CaptureQueriesContext(connection) as ctx:
+			response = self.client.get(reverse("api-projects-list"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertLessEqual(len(ctx.captured_queries), 8)
+
+	def test_categories_endpoint_query_count_stays_bounded(self):
+		with CaptureQueriesContext(connection) as ctx:
+			response = self.client.get(reverse("api-categories-list"))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertLessEqual(len(ctx.captured_queries), 4)
+
+
+@override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)
 class AdminSubdomainAccessTests(TestCase):
 	def test_intended_admin_subdomain_reaches_login(self):
 		response = self.client.get("/", HTTP_HOST="admin.roshandmaor.me")
@@ -198,12 +239,29 @@ class AdminSubdomainAccessTests(TestCase):
 
 
 @override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)
+class AdminStaffAccessTests(TestCase):
+	def test_non_staff_user_is_redirected_from_management_pages(self):
+		user_model = get_user_model()
+		non_staff = user_model.objects.create_user(
+			username="content-user",
+			password="pass1234",
+			is_staff=False,
+		)
+		self.client.force_login(non_staff)
+
+		response = self.client.get(reverse("dashboard"))
+		self.assertEqual(response.status_code, 302)
+		self.assertIn("/admin/login/", response["Location"])
+
+
+@override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)
 class AdminCrudFlowTests(TestCase):
 	def setUp(self):
 		user_model = get_user_model()
 		self.user = user_model.objects.create_user(
 			username="admin-flow",
 			password="pass1234",
+			is_staff=True,
 		)
 		self.client.force_login(self.user)
 

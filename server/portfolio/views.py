@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from .models import (
     Project,
     Category,
@@ -118,7 +118,22 @@ def create_project(request):
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                project = form.save()
+                with transaction.atomic():
+                    project = form.save()
+
+                    # Handle screenshot uploads
+                    screenshot_files = request.FILES.getlist("screenshots")
+                    if screenshot_files:
+                        ProjectScreenshot.objects.bulk_create(
+                            [
+                                ProjectScreenshot(
+                                    project=project,
+                                    image=screenshot_file,
+                                    order=index,
+                                )
+                                for index, screenshot_file in enumerate(screenshot_files)
+                            ]
+                        )
             except IntegrityError:
                 error_payload = {
                     "slug": [
@@ -142,13 +157,6 @@ def create_project(request):
                         "form": form,
                         "categories": categories,
                     },
-                )
-
-            # Handle screenshot uploads
-            screenshot_files = request.FILES.getlist("screenshots")
-            for index, screenshot_file in enumerate(screenshot_files):
-                ProjectScreenshot.objects.create(
-                    project=project, image=screenshot_file, order=index
                 )
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -187,7 +195,26 @@ def edit_project(request, project_id):
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             try:
-                project = form.save()
+                with transaction.atomic():
+                    project = form.save()
+
+                    # Handle screenshot uploads
+                    screenshot_files = request.FILES.getlist("screenshots")
+                    if screenshot_files:
+                        # Delete old screenshots if new ones are uploaded
+                        project.screenshots.all().delete()
+
+                        # Add new screenshots
+                        ProjectScreenshot.objects.bulk_create(
+                            [
+                                ProjectScreenshot(
+                                    project=project,
+                                    image=screenshot_file,
+                                    order=index,
+                                )
+                                for index, screenshot_file in enumerate(screenshot_files)
+                            ]
+                        )
             except IntegrityError:
                 error_payload = {
                     "slug": [
@@ -214,18 +241,6 @@ def edit_project(request, project_id):
                         "is_edit": True,
                     },
                 )
-
-            # Handle screenshot uploads
-            screenshot_files = request.FILES.getlist("screenshots")
-            if screenshot_files:
-                # Delete old screenshots if new ones are uploaded
-                project.screenshots.all().delete()
-
-                # Add new screenshots
-                for index, screenshot_file in enumerate(screenshot_files):
-                    ProjectScreenshot.objects.create(
-                        project=project, image=screenshot_file, order=index
-                    )
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse(
@@ -368,14 +383,44 @@ def create_experience(request):
             if not experience.slug:
                 experience.slug = generate_unique_slug(Experience, experience.position)
 
-            experience.save()
+            try:
+                with transaction.atomic():
+                    experience.save()
 
-            # Handle workplace image uploads
-            workplace_files = request.FILES.getlist("workplace_images")
-            for index, image_file in enumerate(workplace_files):
-                ExperienceImage.objects.create(
-                    experience=experience, image=image_file, order=index
+                    # Handle workplace image uploads
+                    workplace_files = request.FILES.getlist("workplace_images")
+                    if workplace_files:
+                        ExperienceImage.objects.bulk_create(
+                            [
+                                ExperienceImage(
+                                    experience=experience,
+                                    image=image_file,
+                                    order=index,
+                                )
+                                for index, image_file in enumerate(workplace_files)
+                            ]
+                        )
+            except IntegrityError:
+                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    return JsonResponse(
+                        {
+                            "success": False,
+                            "errors": {
+                                "slug": [
+                                    "Unable to save experience due to a duplicate URL slug. Please try a different position title."
+                                ]
+                            },
+                        },
+                        status=400,
+                    )
+                messages.error(
+                    request,
+                    "Unable to save experience due to a duplicate URL slug. Please try again.",
                 )
+                context = {
+                    "form": form,
+                }
+                return render(request, "create_experience.html", context)
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return JsonResponse(
@@ -427,18 +472,25 @@ def edit_experience(request, experience_id):
         
         form = ExperienceForm(post_data, request.FILES, instance=experience)
         if form.is_valid():
-            experience = form.save()
+            with transaction.atomic():
+                experience = form.save()
 
-            # Handle workplace image uploads
-            workplace_files = request.FILES.getlist("workplace_images")
-            if workplace_files:
-                # Delete old images if new ones are uploaded
-                experience.images.all().delete()
+                # Handle workplace image uploads
+                workplace_files = request.FILES.getlist("workplace_images")
+                if workplace_files:
+                    # Delete old images if new ones are uploaded
+                    experience.images.all().delete()
 
-                # Add new images
-                for index, image_file in enumerate(workplace_files):
-                    ExperienceImage.objects.create(
-                        experience=experience, image=image_file, order=index
+                    # Add new images
+                    ExperienceImage.objects.bulk_create(
+                        [
+                            ExperienceImage(
+                                experience=experience,
+                                image=image_file,
+                                order=index,
+                            )
+                            for index, image_file in enumerate(workplace_files)
+                        ]
                     )
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":

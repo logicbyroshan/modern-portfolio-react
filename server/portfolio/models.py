@@ -1,6 +1,17 @@
 from django.db import models
+from django.db.models import Count
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
+
+
+class CategoryQuerySet(models.QuerySet):
+    def with_item_counts(self):
+        return self.annotate(
+            project_items_count=Count("projects", distinct=True),
+            skill_items_count=Count("skills", distinct=True),
+            achievement_items_count=Count("achievements", distinct=True),
+            experience_items_count=Count("experiences", distinct=True),
+        )
 
 
 class Category(models.Model):
@@ -35,24 +46,47 @@ class Category(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = CategoryQuerySet.as_manager()
+
     class Meta:
         verbose_name_plural = "Categories"
         ordering = ["category_type", "name"]
+        indexes = [
+            models.Index(fields=["category_type", "name"]),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.get_category_type_display()})"
 
     def item_count(self):
         """Return the number of items in this category based on type"""
+        count_attr_map = {
+            "project": "project_items_count",
+            "skill": "skill_items_count",
+            "achievement": "achievement_items_count",
+            "experience": "experience_items_count",
+        }
+
+        count_attr = count_attr_map.get(self.category_type)
+        if count_attr and hasattr(self, count_attr):
+            return int(getattr(self, count_attr) or 0)
+
+        if hasattr(self, "_item_count_cache"):
+            return self._item_count_cache
+
         if self.category_type == "project":
-            return self.projects.count()
+            count = self.projects.count()
         elif self.category_type == "skill":
-            return self.skills.count()
+            count = self.skills.count()
         elif self.category_type == "achievement":
-            return self.achievements.count()
+            count = self.achievements.count()
         elif self.category_type == "experience":
-            return self.experiences.count()
-        return 0
+            count = self.experiences.count()
+        else:
+            count = 0
+
+        self._item_count_cache = count
+        return count
 
 
 class Project(models.Model):
@@ -114,6 +148,11 @@ class Project(models.Model):
 
     class Meta:
         ordering = ["-order", "-created_at"]
+        indexes = [
+            models.Index(fields=["is_active", "status", "order", "created_at"]),
+            models.Index(fields=["is_featured", "is_active", "status"]),
+            models.Index(fields=["category", "is_active", "status"]),
+        ]
 
     def __str__(self):
         return self.title
@@ -151,6 +190,9 @@ class ProjectScreenshot(models.Model):
 
     class Meta:
         ordering = ["order", "-uploaded_at"]
+        indexes = [
+            models.Index(fields=["project", "order"]),
+        ]
 
     def __str__(self):
         return f"{self.project.title} - Screenshot {self.id}"
@@ -315,6 +357,11 @@ class Experience(models.Model):
         ordering = ["-order", "-start_date"]
         verbose_name = "Experience"
         verbose_name_plural = "Experiences"
+        indexes = [
+            models.Index(fields=["is_active", "is_draft", "order", "start_date"]),
+            models.Index(fields=["employment_type", "is_active", "is_draft"]),
+            models.Index(fields=["category", "is_active", "is_draft"]),
+        ]
 
     def __str__(self):
         return f"{self.position} at {self.company_name}"
@@ -343,6 +390,9 @@ class ExperienceImage(models.Model):
 
     class Meta:
         ordering = ["order"]
+        indexes = [
+            models.Index(fields=["experience", "order"]),
+        ]
 
     def __str__(self):
         return f"{self.experience.position} - Image {self.id}"
@@ -437,6 +487,11 @@ class Skill(models.Model):
         ordering = ["-proficiency", "name"]
         verbose_name = "Skill"
         verbose_name_plural = "Skills"
+        indexes = [
+            models.Index(fields=["is_active", "is_draft", "proficiency", "name"]),
+            models.Index(fields=["skill_level", "is_active", "is_draft"]),
+            models.Index(fields=["category", "is_active", "is_draft"]),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.get_skill_level_display()})"
@@ -518,6 +573,10 @@ class Achievement(models.Model):
         ordering = ["-achievement_date", "title"]
         verbose_name = "Achievement"
         verbose_name_plural = "Achievements"
+        indexes = [
+            models.Index(fields=["is_active", "is_draft", "achievement_date", "created_at"]),
+            models.Index(fields=["category", "is_active", "is_draft"]),
+        ]
 
     def __str__(self):
         return f"{self.title} - {self.issuing_organization}"

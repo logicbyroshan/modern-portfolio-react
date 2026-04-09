@@ -19,6 +19,26 @@ This folder hosts the Django backend that serves:
 	- `DJANGO_ALLOWED_HOSTS`
 	- `CSRF_TRUSTED_ORIGINS`
 	- `CORS_ALLOWED_ORIGINS`
+	- `CORS_ALLOW_CREDENTIALS=False`
+	- `TRUST_X_FORWARDED_PROTO=True`
+	- `TRUST_X_FORWARDED_FOR=True`
 4. SSL certificate covers both subdomains.
+
+## PostgreSQL performance and reliability knobs
+Set these in production `.env`:
+
+- `DB_CONN_MAX_AGE=60`
+- `DB_CONN_HEALTH_CHECKS=True`
+- `DB_CONNECT_TIMEOUT=10`
+- `DB_STATEMENT_TIMEOUT_MS=15000`
+- `DISALLOW_SQLITE_IN_PRODUCTION=True`
+
+## Runtime hardening checks
+Run before each release:
+
+1. `python manage.py migrate`
+2. `python manage.py check`
+3. `python manage.py check --deploy`
+4. `python manage.py test`
 
 The backend project root is this `server` folder.

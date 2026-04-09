@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,6 +24,8 @@ def load_env_file(path):
 
 load_env_file(BASE_DIR / ".env")
 
+RUNNING_TESTS = "test" in sys.argv
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -37,6 +40,29 @@ def env_bool(name, default=False):
     if raw_value is None:
         return default
     return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_int(name, default=0):
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    try:
+        return int(raw_value.strip())
+    except (TypeError, ValueError):
+        return default
+
+
+def is_weak_secret_key(value):
+    secret = (value or "").strip()
+    if not secret:
+        return True
+    if len(secret) < 50:
+        return True
+    if len(set(secret)) < 5:
+        return True
+    if secret.startswith("django-insecure-"):
+        return True
+    return False
 
 
 def normalize_host(value):
@@ -106,9 +132,15 @@ if not SECRET_KEY:
             "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is False."
         )
 
+if not DEBUG and is_weak_secret_key(SECRET_KEY):
+    raise RuntimeError(
+        "DJANGO_SECRET_KEY must be a strong random value in production "
+        "(>= 50 chars, >= 5 unique chars, not django-insecure-*)."
+    )
+
 ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",
-    "127.0.0.1,localhost,testserver",
+    "127.0.0.1,localhost,testserver" if (DEBUG or RUNNING_TESTS) else "",
 )
 
 PUBLIC_SITE_DOMAIN = normalize_host(os.getenv("PUBLIC_SITE_DOMAIN", ""))
@@ -128,8 +160,14 @@ domain_hosts_with_aliases = unique_list(
 )
 
 ALLOWED_HOSTS = unique_list(
-    ["127.0.0.1", "localhost", "testserver"] + domain_hosts_with_aliases
+    configured_hosts + domain_hosts_with_aliases
 )
+
+if not ALLOWED_HOSTS and not DEBUG and not RUNNING_TESTS:
+    raise RuntimeError(
+        "DJANGO_ALLOWED_HOSTS must include at least one hostname when "
+        "DJANGO_DEBUG is False."
+    )
 
 
 # Application definition
@@ -199,6 +237,43 @@ if os.getenv("DB_ENGINE") == "django.db.backends.postgresql":
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv("DB_PORT", "5432"),
     }
+
+DB_CONN_MAX_AGE = env_int("DB_CONN_MAX_AGE", 0 if DEBUG else 60)
+DATABASES["default"]["CONN_MAX_AGE"] = max(DB_CONN_MAX_AGE, 0)
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = env_bool(
+    "DB_CONN_HEALTH_CHECKS",
+    not DEBUG,
+)
+
+if DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
+    db_connect_timeout = env_int("DB_CONNECT_TIMEOUT", 10)
+    db_statement_timeout_ms = env_int("DB_STATEMENT_TIMEOUT_MS", 15000)
+    db_options = (os.getenv("DB_OPTIONS", "") or "").strip()
+
+    options_parts = [db_options] if db_options else []
+    if db_statement_timeout_ms > 0:
+        options_parts.append(f"-c statement_timeout={db_statement_timeout_ms}")
+
+    postgres_options = {}
+    if db_connect_timeout > 0:
+        postgres_options["connect_timeout"] = db_connect_timeout
+    if options_parts:
+        postgres_options["options"] = " ".join(options_parts)
+
+    if postgres_options:
+        DATABASES["default"]["OPTIONS"] = postgres_options
+
+if (
+    not DEBUG
+    and not RUNNING_TESTS
+    and DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3"
+    and env_bool("DISALLOW_SQLITE_IN_PRODUCTION", True)
+):
+    raise RuntimeError(
+        "SQLite is disabled for production mode. Set DB_ENGINE to "
+        "django.db.backends.postgresql or set DISALLOW_SQLITE_IN_PRODUCTION=False "
+        "to override."
+    )
 
 
 # Password validation
@@ -280,12 +355,15 @@ SIMPLE_JWT = {
 }
 
 # CORS Settings - Only allow your portfolio website
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
-    "http://localhost:5173",  # Vite dev server
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173",
-]
+CORS_ALLOWED_ORIGINS = []
+
+if DEBUG or RUNNING_TESTS:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",  # React dev server
+        "http://localhost:5173",  # Vite dev server
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ]
 
 domain_origins = domains_to_origins(domain_hosts_with_aliases)
 if domain_origins:
@@ -295,20 +373,25 @@ extra_cors_origins = env_list("CORS_ALLOWED_ORIGINS")
 if extra_cors_origins:
     CORS_ALLOWED_ORIGINS = unique_list(CORS_ALLOWED_ORIGINS + extra_cors_origins)
 
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS = env_bool("CORS_ALLOW_CREDENTIALS", False)
+
+cors_allowed_methods = [
+    method.upper() for method in env_list("CORS_ALLOWED_METHODS", "GET,POST,OPTIONS")
+]
+CORS_ALLOW_METHODS = cors_allowed_methods or ["GET", "POST", "OPTIONS"]
 
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173",
+    (
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:3000,http://127.0.0.1:3000"
+    )
+    if (DEBUG or RUNNING_TESTS)
+    else "",
 )
 
 if domain_origins:
     CSRF_TRUSTED_ORIGINS = unique_list(CSRF_TRUSTED_ORIGINS + domain_origins)
-
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # API Key for additional security (Generate a random key for production)
 API_KEY = os.getenv('PORTFOLIO_API_KEY', '')
@@ -319,12 +402,27 @@ SECURE_SSL_REDIRECT = os.getenv(
     'True' if not DEBUG else 'False',
 ).lower() in {'1', 'true', 'yes', 'on'}
 
+SESSION_COOKIE_SECURE = env_bool(
+    'SESSION_COOKIE_SECURE',
+    not DEBUG or SECURE_SSL_REDIRECT,
+)
+CSRF_COOKIE_SECURE = env_bool(
+    'CSRF_COOKIE_SECURE',
+    not DEBUG or SECURE_SSL_REDIRECT,
+)
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+CSRF_COOKIE_SAMESITE = os.getenv('CSRF_COOKIE_SAMESITE', 'Lax')
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
 USE_X_FORWARDED_HOST = env_bool(
     'USE_X_FORWARDED_HOST',
     not DEBUG,
 )
 if env_bool('TRUST_X_FORWARDED_PROTO', not DEBUG):
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+TRUST_X_FORWARDED_FOR = env_bool('TRUST_X_FORWARDED_FOR', False)
 
 SECURE_HSTS_SECONDS = int(
     os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0')
@@ -337,7 +435,18 @@ SECURE_HSTS_PRELOAD = os.getenv(
     'SECURE_HSTS_PRELOAD',
     'True' if not DEBUG else 'False',
 ).lower() in {'1', 'true', 'yes', 'on'}
-SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin')
+SECURE_REFERRER_POLICY = os.getenv(
+    'SECURE_REFERRER_POLICY',
+    'strict-origin-when-cross-origin',
+)
+SECURE_CROSS_ORIGIN_OPENER_POLICY = os.getenv(
+    'SECURE_CROSS_ORIGIN_OPENER_POLICY',
+    'same-origin',
+)
+SECURE_CROSS_ORIGIN_RESOURCE_POLICY = os.getenv(
+    'SECURE_CROSS_ORIGIN_RESOURCE_POLICY',
+    'same-origin',
+)
 X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
 
 LOGIN_URL = '/admin/login/'

@@ -1,5 +1,4 @@
 // JavaScript for interactivity
-console.log("Portfolio UI Loaded");
 
 function initCoreInteractions() {
     // Mobile Menu functionality

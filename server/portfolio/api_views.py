@@ -3,13 +3,18 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.conf import settings
+from django.db.models import Count, Prefetch, Q
 from django.utils import timezone
 from datetime import timedelta
+import ipaddress
 import re
+import secrets
 from .models import (
     ContactMessage,
     Project,
+    ProjectScreenshot,
     Experience,
+    ExperienceImage,
     Skill,
     Achievement,
     Category,
@@ -50,7 +55,44 @@ class APIKeyPermission(permissions.BasePermission):
             return True
 
         api_key = (request.headers.get('X-API-Key') or '').strip()
-        return api_key == configured_key
+        if not api_key:
+            return False
+        return secrets.compare_digest(api_key, configured_key)
+
+
+def extract_client_ip(request):
+    candidates = []
+
+    if getattr(settings, 'TRUST_X_FORWARDED_FOR', False):
+        forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        if forwarded_for:
+            candidates.append(forwarded_for.split(',')[0].strip())
+
+    candidates.append(request.META.get('REMOTE_ADDR'))
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+        try:
+            return str(ipaddress.ip_address(candidate))
+        except ValueError:
+            continue
+
+    return None
+
+
+def category_with_counts_queryset():
+    return Category.objects.with_item_counts().only(
+        "id",
+        "name",
+        "slug",
+        "category_type",
+        "description",
+        "icon",
+        "color",
+        "created_at",
+        "updated_at",
+    )
 
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
@@ -70,8 +112,46 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = (
             Project.objects.filter(is_active=True)
             .exclude(status='draft')
-            .select_related('category')
-            .prefetch_related('screenshots')
+            .only(
+                'id',
+                'title',
+                'slug',
+                'description',
+                'project_name',
+                'documentation',
+                'category_id',
+                'technologies',
+                'thumbnail',
+                'github_url',
+                'live_url',
+                'demo_url',
+                'other_url',
+                'start_date',
+                'end_date',
+                'client',
+                'status',
+                'is_active',
+                'is_featured',
+                'views',
+                'likes',
+                'order',
+                'created_at',
+                'updated_at',
+            )
+            .prefetch_related(
+                Prefetch('category', queryset=category_with_counts_queryset()),
+                Prefetch(
+                    'screenshots',
+                    queryset=ProjectScreenshot.objects.only(
+                        'id',
+                        'project_id',
+                        'image',
+                        'caption',
+                        'order',
+                        'uploaded_at',
+                    ).order_by('order', '-uploaded_at'),
+                ),
+            )
         )
         
         # Filter by category
@@ -117,8 +197,42 @@ class ExperienceViewSet(viewsets.ReadOnlyModelViewSet):
                 is_active=True,
                 is_draft=False,
             )
-            .select_related('category')
-            .prefetch_related('images')
+            .only(
+                'id',
+                'position',
+                'slug',
+                'employment_type',
+                'employment_status',
+                'category_id',
+                'location',
+                'company_name',
+                'company_about',
+                'company_website',
+                'company_logo',
+                'start_date',
+                'end_date',
+                'currently_working',
+                'short_description',
+                'detailed_description',
+                'is_active',
+                'is_draft',
+                'order',
+                'created_at',
+                'updated_at',
+            )
+            .prefetch_related(
+                Prefetch('category', queryset=category_with_counts_queryset()),
+                Prefetch(
+                    'images',
+                    queryset=ExperienceImage.objects.only(
+                        'id',
+                        'experience_id',
+                        'image',
+                        'caption',
+                        'order',
+                    ).order_by('order'),
+                ),
+            )
         )
 
         employment_type = self.request.query_params.get('employment_type', None)
@@ -146,7 +260,30 @@ class SkillViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return only active, non-draft skills"""
-        queryset = Skill.objects.filter(is_active=True, is_draft=False).select_related('category')
+        queryset = (
+            Skill.objects.filter(is_active=True, is_draft=False)
+            .only(
+                'id',
+                'name',
+                'slug',
+                'skill_level',
+                'category_id',
+                'proficiency',
+                'description',
+                'icon_type',
+                'icon_image',
+                'icon_class',
+                'certificate_type',
+                'certificate_file',
+                'certificate_url',
+                'is_active',
+                'is_draft',
+                'order',
+                'created_at',
+                'updated_at',
+            )
+            .prefetch_related(Prefetch('category', queryset=category_with_counts_queryset()))
+        )
         
         level = self.request.query_params.get('level', None)
         if level:
@@ -179,7 +316,32 @@ class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return only active, non-draft achievements"""
-        queryset = Achievement.objects.filter(is_active=True, is_draft=False).select_related('category')
+        queryset = (
+            Achievement.objects.filter(is_active=True, is_draft=False)
+            .only(
+                'id',
+                'title',
+                'slug',
+                'category_id',
+                'issuing_organization',
+                'achievement_date',
+                'expiration_date',
+                'no_expiration',
+                'short_description',
+                'full_description',
+                'credential_type',
+                'credential_file',
+                'credential_url',
+                'credential_id',
+                'related_link',
+                'is_active',
+                'is_draft',
+                'order',
+                'created_at',
+                'updated_at',
+            )
+            .prefetch_related(Prefetch('category', queryset=category_with_counts_queryset()))
+        )
         
         # Filter by category
         category = self.request.query_params.get('category', None)
@@ -202,7 +364,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return all categories"""
-        queryset = Category.objects.all()
+        queryset = category_with_counts_queryset()
         
         # Filter by type
         category_type = self.request.query_params.get('type', None)
@@ -242,17 +404,34 @@ def portfolio_summary(request):
     
     GET /api/summary/ - Get overall portfolio stats
     """
-    profile = UserProfile.objects.first()
+    project_counts = Project.objects.aggregate(
+        total=Count('id'),
+        active=Count('id', filter=Q(is_active=True) & ~Q(status='draft')),
+    )
+    experience_counts = Experience.objects.aggregate(
+        total=Count('id'),
+        active=Count('id', filter=Q(is_active=True, is_draft=False)),
+    )
+    skill_counts = Skill.objects.aggregate(
+        total=Count('id'),
+        active=Count('id', filter=Q(is_active=True, is_draft=False)),
+    )
+    achievement_counts = Achievement.objects.aggregate(
+        total=Count('id'),
+        active=Count('id', filter=Q(is_active=True, is_draft=False)),
+    )
+    years_of_experience = UserProfile.objects.values_list('experience_years', flat=True).first() or 0
+
     data = {
-        'total_projects': Project.objects.count(),
-        'total_experience': Experience.objects.count(),
-        'total_skills': Skill.objects.count(),
-        'total_achievements': Achievement.objects.count(),
-        'active_projects': Project.objects.filter(is_active=True).exclude(status='draft').count(),
-        'active_experience': Experience.objects.filter(is_active=True, is_draft=False).count(),
-        'active_skills': Skill.objects.filter(is_active=True, is_draft=False).count(),
-        'active_achievements': Achievement.objects.filter(is_active=True, is_draft=False).count(),
-        'years_of_experience': profile.experience_years if profile else 0,
+        'total_projects': project_counts['total'],
+        'total_experience': experience_counts['total'],
+        'total_skills': skill_counts['total'],
+        'total_achievements': achievement_counts['total'],
+        'active_projects': project_counts['active'],
+        'active_experience': experience_counts['active'],
+        'active_skills': skill_counts['active'],
+        'active_achievements': achievement_counts['active'],
+        'years_of_experience': years_of_experience,
     }
     
     serializer = PortfolioSummarySerializer(data)
@@ -331,13 +510,17 @@ def create_contact_message(request):
             'full_name': full_name,
             'email': email,
             'message': raw_message,
-            'is_urgent': bool(request.data.get('is_urgent', False)),
+            'is_urgent': str(request.data.get('is_urgent', '')).strip().lower() in {
+                '1',
+                'true',
+                'yes',
+                'on',
+            },
         }
     )
     serializer.is_valid(raise_exception=True)
 
-    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
-    ip_address = forwarded_for.split(',')[0].strip() if forwarded_for else request.META.get('REMOTE_ADDR')
+    ip_address = extract_client_ip(request)
 
     now = timezone.now()
     recent_window = now - timedelta(minutes=10)

@@ -128,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
         statsObserver.observe(card);
     });
 
-    console.log('Dev Mitra Dashboard initialized successfully!');
 });
 
 // Delete functions for dashboard
@@ -151,7 +150,7 @@ function deleteProject(projectId) {
     if (confirm('Are you sure you want to delete this project?')) {
         const csrftoken = getCookie('csrftoken');
         
-        fetch(`/projects/delete/${projectId}/`, {
+        fetch(`/projects/${projectId}/delete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrftoken,
@@ -174,37 +173,11 @@ function deleteProject(projectId) {
     }
 }
 
-function deleteExperience(experienceId) {
-    if (confirm('Are you sure you want to delete this experience?')) {
-        const csrftoken = getCookie('csrftoken');
-        
-        fetch(`/experience/delete/${experienceId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error deleting experience: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting experience');
-        });
-    }
-}
-
 function deleteAchievement(achievementId) {
     if (confirm('Are you sure you want to delete this achievement?')) {
         const csrftoken = getCookie('csrftoken');
         
-        fetch(`/achievements/delete/${achievementId}/`, {
+        fetch(`/achievements/${achievementId}/delete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrftoken,

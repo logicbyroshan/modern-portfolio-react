@@ -98,18 +98,11 @@ CORS_ALLOWED_ORIGINS = [
 
 ### 2. Optional: API Key
 
-For additional security, you can enforce API key validation:
+For additional security, set API key validation by environment value:
 
-In `config/settings.py`:
+In `.env`:
 ```python
-API_KEY = 'your-secure-random-key-here'
-```
-
-In `portfolio/api_views.py`, update `APIKeyPermission`:
-```python
-def has_permission(self, request, view):
-    api_key = request.headers.get('X-API-Key')
-    return api_key == settings.API_KEY  # Enforce API key
+PORTFOLIO_API_KEY=your-secure-random-key-here
 ```
 
 Then in your portfolio frontend:
@@ -120,6 +113,14 @@ fetch('http://localhost:8000/api/projects/', {
   }
 })
 ```
+
+## ⚡ Performance and Reliability Notes
+
+- Query-heavy API paths use selective field loading and relation prefetching.
+- Category `item_count` values are annotated to avoid N+1 count queries.
+- PostgreSQL composite indexes are added for common API filters and sorting patterns.
+- Contact anti-spam checks use indexed columns and bounded query windows.
+- Frontend hydration should use lightweight endpoints such as `/api/projects/featured/` and `/api/skills/top/` for faster first paint.
 
 ## 💻 Usage in Frontend
 
