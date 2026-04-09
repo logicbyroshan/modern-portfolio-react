@@ -48,13 +48,13 @@
         rgba(20, 30, 80, 0.3) 80%,
         var(--card-gradient-end) 100%
     );
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: none;
     border-radius: 20px;
     padding: 70px 30px 50px;
     text-align: center;
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
     position: relative;
     overflow: visible;
 }
@@ -137,7 +137,7 @@
     color: #d1d5db;
     padding-left: 25px;
     position: relative;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
     cursor: pointer;
 }
 

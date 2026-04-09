@@ -82,7 +82,7 @@
     margin-bottom: -80px;
     opacity: 0;
     transform: translateY(30px);
-    transition: all 0.6s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .roadmap-item.animate {
@@ -104,8 +104,9 @@
     border-radius: 16px;
     padding: 20px;
     position: relative;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     min-height: 160px;
 }
 
@@ -141,7 +142,7 @@
     top: 30px;
     box-shadow: 0 0 20px rgba(124, 58, 237, 0.6);
     z-index: 2;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .roadmap-left .roadmap-dot {

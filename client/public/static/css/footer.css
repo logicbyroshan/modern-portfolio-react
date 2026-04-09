@@ -199,7 +199,7 @@
     color: #7c3aed;
     font-size: 12px;
     margin: 0 2px;
-    animation: heartbeat 1.8s ease-in-out infinite;
+    animation: heartbeat 2.6s ease-in-out infinite;
 }
 
 @keyframes heartbeat {

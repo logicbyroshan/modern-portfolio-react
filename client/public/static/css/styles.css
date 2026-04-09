@@ -188,7 +188,7 @@ body {
     height: 3px;
     background-color: var(--text-color);
     border-radius: 2px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
 }
 
 .hamburger-menu.active span:nth-child(1) {
@@ -221,7 +221,6 @@ body {
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
-    will-change: transform;
 }
 
 .mobile-menu.active {
@@ -241,7 +240,7 @@ body {
     font-weight: 500;
     font-size: 18px;
     padding: 16px 30px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, background-color 0.3s ease, border-left-color 0.3s ease;
     border-left: 3px solid transparent;
 }
 
@@ -275,7 +274,7 @@ body {
     backdrop-filter: blur(2px);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 998;
 }
 
@@ -347,7 +346,7 @@ body {
     font-weight: 600;
     font-size: 15px;
     border-radius: var(--radius-lg);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     border: none;
     cursor: pointer;
     position: relative;

@@ -218,7 +218,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.3;
-    animation: float 3.5s ease-in-out infinite 1s;
+    animation: none;
 }
 
 .dot-4 {
@@ -245,7 +245,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.2;
-    animation: float 3.3s ease-in-out infinite 1.2s;
+    animation: none;
 }
 
 .dot-7 {
@@ -254,7 +254,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.3;
-    animation: float 3.6s ease-in-out infinite 0.3s;
+    animation: none;
 }
 
 .dot-8 {
@@ -272,7 +272,7 @@
     width: 7px;
     height: 7px;
     opacity: 0.2;
-    animation: float 3.7s ease-in-out infinite 1.1s;
+    animation: none;
 }
 
 .dot-10 {
