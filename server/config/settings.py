@@ -32,8 +32,67 @@ def env_list(name, default=""):
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def env_bool(name, default=False):
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def normalize_host(value):
+    host = (value or "").strip().lower()
+    if not host:
+        return ""
+
+    if "://" in host:
+        host = host.split("://", 1)[1]
+
+    host = host.split("/", 1)[0]
+
+    if ":" in host:
+        host = host.split(":", 1)[0]
+
+    return host.strip(".")
+
+
+def host_aliases(host):
+    aliases = []
+    if "roshandamor.me" in host:
+        aliases.append(host.replace("roshandamor.me", "roshandmaor.me"))
+    if "roshandmaor.me" in host:
+        aliases.append(host.replace("roshandmaor.me", "roshandamor.me"))
+    return aliases
+
+
+def unique_list(items):
+    seen = set()
+    unique_items = []
+
+    for item in items:
+        if not item:
+            continue
+        if item in seen:
+            continue
+        seen.add(item)
+        unique_items.append(item)
+
+    return unique_items
+
+
+def domains_to_origins(domains):
+    origins = []
+    for domain in domains:
+        host = normalize_host(domain)
+        if not host:
+            continue
+        if host in {"localhost", "127.0.0.1"} or host.startswith("127."):
+            origins.append(f"http://{host}")
+        origins.append(f"https://{host}")
+    return origins
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in {"1", "true", "yes", "on"}
+DEBUG = env_bool("DJANGO_DEBUG", False)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 DEV_FALLBACK_SECRET_KEY = "django-insecure-development-only-key-change-me"
@@ -50,6 +109,26 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list(
     "DJANGO_ALLOWED_HOSTS",
     "127.0.0.1,localhost,testserver",
+)
+
+PUBLIC_SITE_DOMAIN = normalize_host(os.getenv("PUBLIC_SITE_DOMAIN", ""))
+ADMIN_SITE_DOMAIN = normalize_host(os.getenv("ADMIN_SITE_DOMAIN", ""))
+
+configured_hosts = [normalize_host(host) for host in ALLOWED_HOSTS]
+domain_hosts = unique_list(
+    configured_hosts + [PUBLIC_SITE_DOMAIN, ADMIN_SITE_DOMAIN]
+)
+domain_hosts_with_aliases = unique_list(
+    domain_hosts
+    + [
+        alias
+        for host in domain_hosts
+        for alias in host_aliases(host)
+    ]
+)
+
+ALLOWED_HOSTS = unique_list(
+    ["127.0.0.1", "localhost", "testserver"] + domain_hosts_with_aliases
 )
 
 
@@ -208,9 +287,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+domain_origins = domains_to_origins(domain_hosts_with_aliases)
+if domain_origins:
+    CORS_ALLOWED_ORIGINS = unique_list(CORS_ALLOWED_ORIGINS + domain_origins)
+
 extra_cors_origins = env_list("CORS_ALLOWED_ORIGINS")
 if extra_cors_origins:
-    CORS_ALLOWED_ORIGINS = extra_cors_origins
+    CORS_ALLOWED_ORIGINS = unique_list(CORS_ALLOWED_ORIGINS + extra_cors_origins)
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -218,6 +301,9 @@ CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
     "http://localhost:5173,http://127.0.0.1:5173",
 )
+
+if domain_origins:
+    CSRF_TRUSTED_ORIGINS = unique_list(CSRF_TRUSTED_ORIGINS + domain_origins)
 
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
@@ -232,6 +318,13 @@ SECURE_SSL_REDIRECT = os.getenv(
     'SECURE_SSL_REDIRECT',
     'True' if not DEBUG else 'False',
 ).lower() in {'1', 'true', 'yes', 'on'}
+
+USE_X_FORWARDED_HOST = env_bool(
+    'USE_X_FORWARDED_HOST',
+    not DEBUG,
+)
+if env_bool('TRUST_X_FORWARDED_PROTO', not DEBUG):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SECURE_HSTS_SECONDS = int(
     os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0')

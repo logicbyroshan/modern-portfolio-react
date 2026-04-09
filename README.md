@@ -410,8 +410,9 @@ Backend URL: `http://127.0.0.1:8000`
 
 ### 12.1 Intended Domains
 
-- Public portfolio: `www.roshandamor.me`
-- Admin/API backend: `admin.roshandamor.me`
+- Public portfolio: `www.roshandmaor.me`
+- Admin/API backend: `admin.roshandmaor.me`
+- Legacy `roshandamor.me` hostnames are also accepted by backend settings for compatibility.
 
 ### 12.2 Suggested Infrastructure Pattern
 
