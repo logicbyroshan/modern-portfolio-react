@@ -206,7 +206,39 @@ class ApiQueryPerformanceTests(TestCase):
 				category=self.category,
 				status="active",
 				is_active=True,
+				is_featured=True,
 			)
+
+		skill_category = Category.objects.create(
+			name="Performance Skill Category",
+			slug="performance-skill-category",
+			category_type="skill",
+		)
+		experience_category = Category.objects.create(
+			name="Performance Experience Category",
+			slug="performance-experience-category",
+			category_type="experience",
+		)
+
+		Skill.objects.create(
+			name="Performance Skill",
+			slug="performance-skill",
+			skill_level="advanced",
+			proficiency=90,
+			category=skill_category,
+			is_active=True,
+			is_draft=False,
+		)
+		Experience.objects.create(
+			position="Performance Engineer",
+			slug="performance-engineer",
+			company_name="Perf Company",
+			start_date=date(2024, 1, 1),
+			short_description="Performance test entry",
+			category=experience_category,
+			is_active=True,
+			is_draft=False,
+		)
 
 	def test_projects_endpoint_query_count_stays_bounded(self):
 		with CaptureQueriesContext(connection) as ctx:
@@ -221,6 +253,18 @@ class ApiQueryPerformanceTests(TestCase):
 
 		self.assertEqual(response.status_code, 200)
 		self.assertLessEqual(len(ctx.captured_queries), 4)
+
+	def test_bootstrap_endpoint_uses_single_payload_and_bounded_queries(self):
+		with CaptureQueriesContext(connection) as ctx:
+			response = self.client.get(reverse("api-bootstrap"))
+
+		self.assertEqual(response.status_code, 200)
+		payload = response.json()
+		self.assertIn("profile", payload)
+		self.assertIn("projects", payload)
+		self.assertIn("skills", payload)
+		self.assertIn("experience", payload)
+		self.assertLessEqual(len(ctx.captured_queries), 14)
 
 
 @override_settings(API_KEY="", SECURE_SSL_REDIRECT=False)

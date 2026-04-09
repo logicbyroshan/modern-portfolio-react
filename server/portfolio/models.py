@@ -4,6 +4,26 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
 
 
+def build_unique_slug(base_slug, existing_slugs, max_attempts=10000):
+    if base_slug not in existing_slugs:
+        return base_slug
+
+    slug_prefix = f"{base_slug}-"
+    used_suffixes = {
+        int(suffix)
+        for slug in existing_slugs
+        if slug.startswith(slug_prefix)
+        for suffix in [slug[len(slug_prefix):]]
+        if suffix.isdigit()
+    }
+
+    for counter in range(1, max_attempts + 1):
+        if counter not in used_suffixes:
+            return f"{base_slug}-{counter}"
+
+    raise ValueError(f"Could not generate a unique slug for '{base_slug}'")
+
+
 class CategoryQuerySet(models.QuerySet):
     def with_item_counts(self):
         return self.annotate(
@@ -160,14 +180,12 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title or self.project_name or "project") or "project"
-            slug = base_slug
-            counter = 1
-
-            while Project.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-
-            self.slug = slug
+            existing_slugs = set(
+                Project.objects.filter(slug__startswith=base_slug)
+                .exclude(pk=self.pk)
+                .values_list("slug", flat=True)
+            )
+            self.slug = build_unique_slug(base_slug, existing_slugs)
 
         super().save(*args, **kwargs)
 
@@ -589,7 +607,13 @@ class Achievement(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base_slug = slugify(self.title or "achievement") or "achievement"
+            existing_slugs = set(
+                Achievement.objects.filter(slug__startswith=base_slug)
+                .exclude(pk=self.pk)
+                .values_list("slug", flat=True)
+            )
+            self.slug = build_unique_slug(base_slug, existing_slugs)
         super().save(*args, **kwargs)
 
 

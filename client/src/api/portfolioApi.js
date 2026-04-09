@@ -1,5 +1,6 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 const TIME_API = typeof window !== 'undefined' ? window : globalThis;
+const CACHE_KEY = 'portfolio-bootstrap-cache-v1';
 
 function parsePositiveInt(value, fallback) {
   const parsed = Number.parseInt(String(value ?? ''), 10);
@@ -8,6 +9,14 @@ function parsePositiveInt(value, fallback) {
 
 const DEFAULT_API_TIMEOUT_MS = parsePositiveInt(import.meta.env.VITE_API_TIMEOUT_MS, 7000);
 const DEFAULT_API_RETRY_ATTEMPTS = parsePositiveInt(import.meta.env.VITE_API_RETRY_ATTEMPTS, 1);
+const DEFAULT_BOOTSTRAP_CACHE_TTL_MS = parsePositiveInt(
+  import.meta.env.VITE_PORTFOLIO_CACHE_TTL_MS,
+  5 * 60 * 1000,
+);
+
+let portfolioCache = null;
+let portfolioCacheExpiresAt = 0;
+let inFlightPortfolioRequest = null;
 
 function withBase(path) {
   return `${API_BASE_URL}${path}`;
@@ -69,6 +78,77 @@ function unwrapResults(payload) {
   return [];
 }
 
+function getSessionStorage() {
+  if (typeof window === 'undefined') return null;
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+function buildPortfolioPayload(payload) {
+  const source = payload || {};
+
+  return {
+    profile: source.profile && !Array.isArray(source.profile) ? source.profile : null,
+    projects: unwrapResults(source.projects),
+    skills: unwrapResults(source.skills),
+    experience: unwrapResults(source.experience),
+  };
+}
+
+function readCachedPortfolioPayload() {
+  const now = Date.now();
+
+  if (portfolioCache && now < portfolioCacheExpiresAt) {
+    return portfolioCache;
+  }
+
+  const storage = getSessionStorage();
+  if (!storage) return null;
+
+  try {
+    const raw = storage.getItem(CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.expiresAt <= now || !parsed.data) {
+      storage.removeItem(CACHE_KEY);
+      return null;
+    }
+
+    portfolioCache = parsed.data;
+    portfolioCacheExpiresAt = parsed.expiresAt;
+    return portfolioCache;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedPortfolioPayload(payload) {
+  const now = Date.now();
+  const expiresAt = now + DEFAULT_BOOTSTRAP_CACHE_TTL_MS;
+
+  portfolioCache = payload;
+  portfolioCacheExpiresAt = expiresAt;
+
+  const storage = getSessionStorage();
+  if (!storage) return;
+
+  try {
+    storage.setItem(
+      CACHE_KEY,
+      JSON.stringify({
+        expiresAt,
+        data: payload,
+      }),
+    );
+  } catch {
+    // Ignore storage errors (private mode, quota, etc.).
+  }
+}
+
 function settledValue(result) {
   if (result.status !== 'fulfilled') {
     return null;
@@ -78,22 +158,44 @@ function settledValue(result) {
 }
 
 export async function fetchPortfolioData() {
-  const [profileResult, projectsResult, skillsResult, experienceResult] = await Promise.allSettled([
-    requestJson('/profile/'),
-    requestJson('/projects/featured/'),
-    requestJson('/skills/top/'),
-    requestJson('/experience/'),
-  ]);
+  const cachedPayload = readCachedPortfolioPayload();
+  if (cachedPayload) {
+    return cachedPayload;
+  }
 
-  const profileData = settledValue(profileResult);
-  const projectsData = settledValue(projectsResult);
-  const skillsData = settledValue(skillsResult);
-  const experienceData = settledValue(experienceResult);
+  if (inFlightPortfolioRequest) {
+    return inFlightPortfolioRequest;
+  }
 
-  return {
-    profile: profileData && !Array.isArray(profileData) ? profileData : null,
-    projects: unwrapResults(projectsData),
-    skills: unwrapResults(skillsData),
-    experience: unwrapResults(experienceData),
-  };
+  inFlightPortfolioRequest = (async () => {
+    try {
+      const bootstrapPayload = await requestJson('/bootstrap/', {
+        retryAttempts: Math.max(DEFAULT_API_RETRY_ATTEMPTS, 2),
+      });
+      const normalized = buildPortfolioPayload(bootstrapPayload);
+      writeCachedPortfolioPayload(normalized);
+      return normalized;
+    } catch {
+      const [profileResult, projectsResult, skillsResult, experienceResult] = await Promise.allSettled([
+        requestJson('/profile/'),
+        requestJson('/projects/featured/'),
+        requestJson('/skills/top/'),
+        requestJson('/experience/'),
+      ]);
+
+      const fallbackPayload = buildPortfolioPayload({
+        profile: settledValue(profileResult),
+        projects: settledValue(projectsResult),
+        skills: settledValue(skillsResult),
+        experience: settledValue(experienceResult),
+      });
+
+      writeCachedPortfolioPayload(fallbackPayload);
+      return fallbackPayload;
+    } finally {
+      inFlightPortfolioRequest = null;
+    }
+  })();
+
+  return inFlightPortfolioRequest;
 }

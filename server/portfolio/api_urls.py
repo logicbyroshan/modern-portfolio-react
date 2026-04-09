@@ -16,6 +16,7 @@ urlpatterns = [
     path('', include(router.urls)),
     
     # Custom endpoints
+    path('bootstrap/', api_views.portfolio_bootstrap, name='api-bootstrap'),
     path('summary/', api_views.portfolio_summary, name='api-summary'),
     path('health/', api_views.api_health_check, name='api-health'),
     path('contact/', api_views.create_contact_message, name='api-contact-create'),

@@ -261,6 +261,8 @@ Base URL (dev): `http://127.0.0.1:8000/api/`
 	- Returns total and active counts for main content buckets.
 - `GET /api/profile/`
 	- Returns single profile object.
+- `GET /api/bootstrap/`
+	- Returns profile + featured projects + top skills + recent experience in one response for fast hydration.
 - `GET /api/projects/`
 	- Supports filters: `category`, `status`, `featured`.
 - `GET /api/projects/featured/`
@@ -372,6 +374,8 @@ Important backend environment variables:
 
 - `VITE_API_BASE_URL`
 	- Default recommended value: `/api`
+- `VITE_PORTFOLIO_CACHE_TTL_MS`
+	- Session cache duration for hydration payload (default: `300000` ms)
 - `VITE_API_TIMEOUT_MS`
 	- Request timeout for hydration fetches (recommended: `7000`)
 - `VITE_API_RETRY_ATTEMPTS`
@@ -488,6 +492,7 @@ python manage.py check --deploy
 - Wrapped multi-step create/update flows for project/experience media in atomic transactions and `bulk_create` for fewer writes and stronger consistency.
 - Improved frontend hydration reliability with request timeouts, retry logic, and `Promise.allSettled` handling.
 - Reduced frontend API load by using lightweight endpoints (`/projects/featured/`, `/skills/top/`) during initial hydration.
+- Added single-call bootstrap hydration endpoint plus short-lived session cache to reduce browser round trips.
 - Enforced deterministic core legacy script load order to avoid race-condition failures.
 
 ### 14.2 PostgreSQL Runtime Tuning (Recommended Baseline)

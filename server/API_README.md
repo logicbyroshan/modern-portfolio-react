@@ -16,6 +16,9 @@ curl http://localhost:8000/api/projects/
 # Get portfolio summary
 curl http://localhost:8000/api/summary/
 
+# Get bootstrap payload (single hydration call)
+curl http://localhost:8000/api/bootstrap/
+
 # Get user profile
 curl http://localhost:8000/api/profile/
 
@@ -79,6 +82,9 @@ curl http://localhost:8000/api/skills/top/
 ### Summary
 - `GET /api/summary/` - Get portfolio statistics
 
+### Bootstrap
+- `GET /api/bootstrap/` - Get profile + featured projects + top skills + recent experience in one payload
+
 ### Health
 - `GET /api/health/` - API health check
 
@@ -120,7 +126,7 @@ fetch('http://localhost:8000/api/projects/', {
 - Category `item_count` values are annotated to avoid N+1 count queries.
 - PostgreSQL composite indexes are added for common API filters and sorting patterns.
 - Contact anti-spam checks use indexed columns and bounded query windows.
-- Frontend hydration should use lightweight endpoints such as `/api/projects/featured/` and `/api/skills/top/` for faster first paint.
+- Frontend hydration should prefer `/api/bootstrap/` to reduce browser round trips and total latency.
 
 ## 💻 Usage in Frontend
 

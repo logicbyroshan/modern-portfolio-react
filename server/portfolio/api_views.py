@@ -95,6 +95,156 @@ def category_with_counts_queryset():
     )
 
 
+def bootstrap_profile_queryset():
+    return UserProfile.objects.only(
+        "id",
+        "full_name",
+        "email",
+        "phone",
+        "location",
+        "title",
+        "bio",
+        "profile_image",
+        "github",
+        "linkedin",
+        "twitter",
+        "instagram",
+        "youtube",
+        "website",
+        "video_resume",
+        "meta_title",
+        "meta_description",
+        "meta_keywords",
+        "status",
+        "work_type",
+        "hourly_rate",
+        "experience_years",
+        "open_to_opportunities",
+        "available_for_freelance",
+        "created_at",
+        "updated_at",
+    )
+
+
+def bootstrap_projects_queryset():
+    return (
+        Project.objects.filter(is_active=True, is_featured=True)
+        .exclude(status="draft")
+        .only(
+            "id",
+            "title",
+            "slug",
+            "description",
+            "project_name",
+            "documentation",
+            "category_id",
+            "technologies",
+            "thumbnail",
+            "github_url",
+            "live_url",
+            "demo_url",
+            "other_url",
+            "start_date",
+            "end_date",
+            "client",
+            "status",
+            "is_active",
+            "is_featured",
+            "views",
+            "likes",
+            "order",
+            "created_at",
+            "updated_at",
+        )
+        .prefetch_related(
+            Prefetch("category", queryset=category_with_counts_queryset()),
+            Prefetch(
+                "screenshots",
+                queryset=ProjectScreenshot.objects.only(
+                    "id",
+                    "project_id",
+                    "image",
+                    "caption",
+                    "order",
+                    "uploaded_at",
+                ).order_by("order", "-uploaded_at"),
+            ),
+        )
+        .order_by("-order", "-created_at")
+    )
+
+
+def bootstrap_skills_queryset():
+    return (
+        Skill.objects.filter(is_active=True, is_draft=False)
+        .only(
+            "id",
+            "name",
+            "slug",
+            "skill_level",
+            "category_id",
+            "proficiency",
+            "description",
+            "icon_type",
+            "icon_image",
+            "icon_class",
+            "certificate_type",
+            "certificate_file",
+            "certificate_url",
+            "is_active",
+            "is_draft",
+            "order",
+            "created_at",
+            "updated_at",
+        )
+        .prefetch_related(Prefetch("category", queryset=category_with_counts_queryset()))
+        .order_by("-proficiency", "name")
+    )
+
+
+def bootstrap_experience_queryset():
+    return (
+        Experience.objects.filter(is_active=True, is_draft=False)
+        .only(
+            "id",
+            "position",
+            "slug",
+            "employment_type",
+            "employment_status",
+            "category_id",
+            "location",
+            "company_name",
+            "company_about",
+            "company_website",
+            "company_logo",
+            "start_date",
+            "end_date",
+            "currently_working",
+            "short_description",
+            "detailed_description",
+            "is_active",
+            "is_draft",
+            "order",
+            "created_at",
+            "updated_at",
+        )
+        .prefetch_related(
+            Prefetch("category", queryset=category_with_counts_queryset()),
+            Prefetch(
+                "images",
+                queryset=ExperienceImage.objects.only(
+                    "id",
+                    "experience_id",
+                    "image",
+                    "caption",
+                    "order",
+                ).order_by("order"),
+            ),
+        )
+        .order_by("-order", "-start_date")
+    )
+
+
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint for projects (READ ONLY).
@@ -385,7 +535,7 @@ class UserProfileViewSet(viewsets.ReadOnlyModelViewSet):
     
     def get_queryset(self):
         """Return user profile (only one)"""
-        return UserProfile.objects.all()[:1]
+        return bootstrap_profile_queryset()[:1]
     
     def list(self, request, *args, **kwargs):
         """Return single profile instead of list"""
@@ -436,6 +586,47 @@ def portfolio_summary(request):
     
     serializer = PortfolioSummarySerializer(data)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([ReadOnlyPermission, APIKeyPermission])
+def portfolio_bootstrap(request):
+    """
+    Return key portfolio payload in one response for fast frontend hydration.
+
+    GET /api/bootstrap/
+    """
+    serializer_context = {"request": request}
+
+    profile = bootstrap_profile_queryset().first()
+    featured_projects = bootstrap_projects_queryset()[:6]
+    top_skills = bootstrap_skills_queryset()[:10]
+    recent_experience = bootstrap_experience_queryset()[:6]
+
+    return Response(
+        {
+            "profile": (
+                UserProfileSerializer(profile, context=serializer_context).data
+                if profile
+                else None
+            ),
+            "projects": ProjectSerializer(
+                featured_projects,
+                many=True,
+                context=serializer_context,
+            ).data,
+            "skills": SkillSerializer(
+                top_skills,
+                many=True,
+                context=serializer_context,
+            ).data,
+            "experience": ExperienceSerializer(
+                recent_experience,
+                many=True,
+                context=serializer_context,
+            ).data,
+        }
+    )
 
 
 @api_view(['GET'])
