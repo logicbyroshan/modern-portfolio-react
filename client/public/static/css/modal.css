@@ -22,6 +22,16 @@
     transition: opacity 0.28s ease, visibility 0s linear 0.28s;
 }
 
+@supports (content-visibility: hidden) {
+    .modal-overlay {
+        content-visibility: hidden;
+    }
+
+    .modal-overlay.modal-visible {
+        content-visibility: visible;
+    }
+}
+
 .modal-overlay.modal-visible {
     opacity: 1;
     visibility: visible;

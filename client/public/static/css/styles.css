@@ -80,6 +80,20 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+@supports (content-visibility: auto) {
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section,
+    .site-footer {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 900px;
+    }
+}
+
 .container {
     max-width: 1200px;
     width: 100%;

@@ -4,14 +4,14 @@ import { hydratePortfolioDom } from './api/hydratePortfolio';
 
 const CORE_LEGACY_SCRIPTS = [
   '/static/js/script.js',
-  '/static/js/faq.js',
-  '/static/js/projects.js',
-  '/static/js/contact.js',
-  '/static/js/sounds.js',
   '/static/js/modal.js',
 ];
 
 const DEFERRED_LEGACY_SCRIPTS = [
+  '/static/js/sounds.js',
+  '/static/js/faq.js',
+  '/static/js/projects.js',
+  '/static/js/contact.js',
   '/static/js/technology.js',
   '/static/js/blog.js',
   '/static/js/about.js',
@@ -48,6 +48,8 @@ function App() {
     const appendedScripts = [];
     let cancelled = false;
     let cancelDeferredLoad = null;
+    let removeDeferredTriggers = null;
+    let deferredLoaded = false;
 
     const loadScript = (src) =>
       new Promise((resolve, reject) => {
@@ -77,6 +79,45 @@ function App() {
       return () => window.clearTimeout(id);
     };
 
+    const loadDeferredScripts = () => {
+      if (cancelled || deferredLoaded) {
+        return;
+      }
+
+      deferredLoaded = true;
+      if (removeDeferredTriggers) {
+        removeDeferredTriggers();
+        removeDeferredTriggers = null;
+      }
+
+      Promise.all(DEFERRED_LEGACY_SCRIPTS.map((src) => loadScript(src))).catch(() => {
+        // Keep rendering the page even if deferred scripts fail to load.
+      });
+    };
+
+    const bindDeferredTriggers = () => {
+      const triggerConfigs = [
+        { target: window, type: 'pointerdown', options: { once: true, passive: true } },
+        { target: window, type: 'touchstart', options: { once: true, passive: true } },
+        { target: window, type: 'scroll', options: { once: true, passive: true } },
+        { target: window, type: 'keydown', options: { once: true } },
+      ];
+
+      const onTrigger = () => {
+        loadDeferredScripts();
+      };
+
+      triggerConfigs.forEach(({ target, type, options }) => {
+        target.addEventListener(type, onTrigger, options);
+      });
+
+      return () => {
+        triggerConfigs.forEach(({ target, type, options }) => {
+          target.removeEventListener(type, onTrigger, options);
+        });
+      };
+    };
+
     const initializeLegacyScripts = async () => {
       try {
         const apiData = await fetchPortfolioData();
@@ -93,15 +134,8 @@ function App() {
         return;
       }
 
-      cancelDeferredLoad = scheduleDeferred(() => {
-        if (cancelled) {
-          return;
-        }
-
-        Promise.all(DEFERRED_LEGACY_SCRIPTS.map((src) => loadScript(src))).catch(() => {
-          // Keep rendering the page even if deferred scripts fail to load.
-        });
-      });
+      removeDeferredTriggers = bindDeferredTriggers();
+      cancelDeferredLoad = scheduleDeferred(loadDeferredScripts);
     };
 
     initializeLegacyScripts().catch(() => {
@@ -112,6 +146,9 @@ function App() {
       cancelled = true;
       if (cancelDeferredLoad) {
         cancelDeferredLoad();
+      }
+      if (removeDeferredTriggers) {
+        removeDeferredTriggers();
       }
       appendedScripts.forEach((script) => script.remove());
     };
