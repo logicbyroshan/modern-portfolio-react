@@ -636,3 +636,690 @@
         padding: 11px 12px;
     }
 }
+
+/* ========================================
+   Consistency Normalization Layer
+   Keeps spacing, typography, and controls aligned
+   across all sections on tablet and mobile.
+   ======================================== */
+
+@media screen and (max-width: 1199px) {
+    .container,
+    .hero-container,
+    .navbar .nav-container {
+        padding-inline: var(--layout-gutter-tablet);
+    }
+
+    .hero-grid,
+    .faq-wrapper {
+        gap: 34px;
+    }
+
+    .projects-slider,
+    .roadmap-timeline,
+    .blog-grid,
+    .tech-grid {
+        margin-inline: auto;
+    }
+}
+
+@media screen and (max-width: 999px) {
+    .container,
+    .hero-container,
+    .navbar .nav-container {
+        padding-inline: var(--layout-gutter-tablet);
+    }
+
+    .about-section .about-heading,
+    .technology-section .tech-heading,
+    .projects-section .projects-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        line-height: 1.22;
+    }
+
+    .nft-card,
+    .tech-card,
+    .project-card,
+    .roadmap-card,
+    .contact-wrapper,
+    .faq-item,
+    .blog-image-wrapper,
+    .modal-box {
+        border-radius: 18px;
+    }
+
+    .projects-section .project-card,
+    .contact-section .contact-wrapper {
+        padding: 34px 24px;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn,
+    .modal-btn {
+        min-height: 46px;
+    }
+}
+
+@media screen and (max-width: 899px) {
+    .hero-stats {
+        gap: 16px;
+    }
+
+    .stat-item {
+        padding-inline: 12px;
+    }
+
+    .project-buttons,
+    .faq-tabs,
+    .modal-actions,
+    .footer-socials {
+        gap: 10px;
+    }
+
+    .blog-grid,
+    .tech-grid {
+        gap: 22px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: var(--section-space-mobile);
+        padding-bottom: var(--section-space-mobile);
+    }
+
+    .about-section .container,
+    .technology-section .container,
+    .projects-section .container,
+    .roadmap-section .container,
+    .blog-section .container,
+    .faq-section .container,
+    .contact-section .container,
+    .hero-container,
+    .navbar .container {
+        padding-inline: var(--layout-gutter-mobile);
+    }
+
+    .projects-section .projects-heading,
+    .projects-section .projects-intro,
+    .technology-section .tech-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        font-size: 30px;
+        line-height: 1.22;
+        margin-bottom: 28px;
+        padding-inline: 0;
+    }
+
+    .projects-section .projects-intro,
+    .faq-section .faq-description,
+    .about-section .about-description,
+    .project-description,
+    .roadmap-description,
+    .contact-value,
+    .blog-date {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .about-subdescription,
+    .skills-list li,
+    .faq-answer p,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li,
+    .footer-copy,
+    .footer-made {
+        font-size: 12.5px;
+        line-height: 1.65;
+    }
+
+    .technology-section .tech-grid,
+    .blog-section .blog-grid {
+        padding-inline: 0;
+    }
+
+    .projects-section .project-card,
+    .contact-section .contact-wrapper {
+        padding: 28px 18px;
+    }
+
+    .roadmap-section .roadmap-card {
+        padding: 24px 18px;
+    }
+
+    .technology-section .tech-card {
+        padding: 52px 20px 34px;
+    }
+
+    .blog-section .blog-image-wrapper {
+        padding: 16px;
+    }
+
+    .nft-card,
+    .tech-card,
+    .project-card,
+    .roadmap-card,
+    .contact-wrapper,
+    .faq-item,
+    .blog-image-wrapper,
+    .modal-box {
+        border-radius: var(--radius-panel-md);
+    }
+
+    .faq-section .faq-question {
+        padding: 14px 16px;
+    }
+
+    .faq-section .faq-item.active .faq-answer {
+        padding: 0 16px 14px 16px;
+    }
+
+    .faq-tab {
+        min-height: 40px;
+        padding: 8px 16px;
+    }
+
+    .project-buttons {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .project-buttons .project-btn,
+    .modal-actions .modal-btn,
+    .hero-btn-group .btn {
+        min-height: 44px;
+    }
+
+    .project-buttons .project-btn {
+        flex: 1 1 180px;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn,
+    .modal-btn {
+        min-height: 44px;
+    }
+
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn,
+    .chat-send-btn,
+    .modal-close,
+    .contact-icon,
+    .stat-icon,
+    .download-option-icon {
+        width: var(--control-size-mobile);
+        height: var(--control-size-mobile);
+    }
+}
+
+@media screen and (max-width: 639px) {
+    .about-section .container,
+    .technology-section .container,
+    .projects-section .container,
+    .roadmap-section .container,
+    .blog-section .container,
+    .faq-section .container,
+    .contact-section .container,
+    .hero-container,
+    .navbar .container {
+        padding-inline: 15px;
+    }
+
+    .about-section .about-heading,
+    .technology-section .tech-heading,
+    .projects-section .projects-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        font-size: 28px;
+    }
+
+    .tech-icon-wrapper {
+        width: 72px;
+        height: 72px;
+        top: -40px;
+    }
+
+    .tech-icon-wrapper i {
+        font-size: 28px;
+    }
+
+    .projects-section .project-card,
+    .contact-section .contact-wrapper {
+        padding: 24px 15px;
+    }
+
+    .roadmap-section .roadmap-card {
+        padding: 22px 15px;
+    }
+
+    .project-tech-stack,
+    .faq-tabs,
+    .modal-actions {
+        gap: 8px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: var(--section-space-phone);
+        padding-bottom: var(--section-space-phone);
+    }
+
+    .about-section .container,
+    .technology-section .container,
+    .projects-section .container,
+    .roadmap-section .container,
+    .blog-section .container,
+    .faq-section .container,
+    .contact-section .container,
+    .hero-container,
+    .navbar .container {
+        padding-inline: var(--layout-gutter-phone);
+    }
+
+    .about-section .about-heading,
+    .technology-section .tech-heading,
+    .projects-section .projects-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        font-size: 26px;
+        margin-bottom: 24px;
+    }
+
+    .projects-section .project-card,
+    .contact-section .contact-wrapper {
+        padding: 22px 14px;
+    }
+
+    .roadmap-section .roadmap-card,
+    .technology-section .tech-card {
+        padding-inline: 14px;
+    }
+
+    .technology-section .tech-card {
+        padding-top: 46px;
+        padding-bottom: 30px;
+    }
+
+    .nft-card,
+    .tech-card,
+    .project-card,
+    .roadmap-card,
+    .contact-wrapper,
+    .faq-item,
+    .blog-image-wrapper,
+    .modal-box {
+        border-radius: 15px;
+    }
+
+    .faq-section .faq-question {
+        padding: 12px 14px;
+    }
+
+    .faq-section .faq-item.active .faq-answer {
+        padding: 0 14px 12px 14px;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn,
+    .modal-btn {
+        min-height: 42px;
+        font-size: 13px;
+    }
+
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn,
+    .chat-send-btn,
+    .modal-close,
+    .contact-icon,
+    .stat-icon,
+    .download-option-icon {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .hero-section,
+    .about-section,
+    .technology-section,
+    .projects-section,
+    .roadmap-section,
+    .blog-section,
+    .faq-section,
+    .contact-section {
+        padding-top: var(--section-space-mini);
+        padding-bottom: var(--section-space-mini);
+    }
+
+    .about-section .about-heading,
+    .technology-section .tech-heading,
+    .projects-section .projects-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        font-size: 23px;
+    }
+
+    .projects-section .project-card,
+    .contact-section .contact-wrapper,
+    .roadmap-section .roadmap-card {
+        padding: 18px 12px;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn,
+    .modal-btn {
+        min-height: 40px;
+        font-size: 12px;
+    }
+
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn,
+    .chat-send-btn,
+    .modal-close,
+    .contact-icon,
+    .stat-icon,
+    .download-option-icon {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .about-section .container,
+    .technology-section .container,
+    .projects-section .container,
+    .roadmap-section .container,
+    .blog-section .container,
+    .faq-section .container,
+    .contact-section .container,
+    .hero-container,
+    .navbar .container {
+        padding-inline: var(--layout-gutter-mini);
+    }
+
+    .about-section .about-heading,
+    .technology-section .tech-heading,
+    .projects-section .projects-heading,
+    .roadmap-section .roadmap-heading,
+    .blog-section .blog-heading,
+    .faq-section .faq-heading,
+    .contact-section .contact-heading {
+        font-size: 21px;
+    }
+
+    .btn,
+    .project-btn,
+    .form-submit-btn,
+    .modal-btn {
+        min-height: 38px;
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn,
+    .chat-send-btn,
+    .modal-close,
+    .contact-icon,
+    .stat-icon,
+    .download-option-icon {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* ========================================
+   Ultra Fine Rhythm Pass
+   Final typography, gap, and control polish.
+   ======================================== */
+
+.about-badge,
+.tech-badge,
+.projects-badge,
+.roadmap-badge,
+.blog-badge,
+.faq-badge,
+.contact-badge {
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: 0.4px;
+    padding: 7px 18px;
+    margin-bottom: 18px;
+}
+
+.about-heading,
+.tech-heading,
+.projects-heading,
+.roadmap-heading,
+.blog-heading,
+.faq-heading,
+.contact-heading {
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+    margin-bottom: 24px;
+}
+
+.projects-intro,
+.about-description,
+.faq-description {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.project-tech-stack,
+.projects-navigation,
+.faq-tabs,
+.modal-actions,
+.footer-socials {
+    gap: 12px;
+}
+
+.project-tech-badge {
+    font-size: 12px;
+    line-height: 1;
+    padding: 8px 14px;
+}
+
+.project-nickname,
+.project-category,
+.roadmap-date,
+.faq-tab {
+    font-size: 12px;
+    line-height: 1.1;
+}
+
+.project-description,
+.roadmap-description,
+.faq-answer p,
+.contact-value,
+.footer-links li a,
+.footer-links li span,
+.footer-contact-list li,
+.footer-tagline {
+    line-height: 1.65;
+}
+
+.btn,
+.project-btn,
+.form-submit-btn,
+.modal-btn,
+.faq-tab,
+.mobile-nav-link {
+    letter-spacing: 0.2px;
+}
+
+.modal-close,
+.chat-send-btn,
+.nav-btn,
+.github-btn,
+.footer-social-btn,
+.contact-icon,
+.stat-icon,
+.download-option-icon {
+    border-radius: 12px;
+}
+
+@media screen and (max-width: 999px) {
+    .about-badge,
+    .tech-badge,
+    .projects-badge,
+    .roadmap-badge,
+    .blog-badge,
+    .faq-badge,
+    .contact-badge {
+        font-size: 12.5px;
+        padding: 7px 16px;
+        margin-bottom: 16px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        margin-bottom: 22px;
+    }
+
+    .project-tech-stack,
+    .projects-navigation,
+    .faq-tabs,
+    .modal-actions,
+    .footer-socials {
+        gap: 10px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .about-badge,
+    .tech-badge,
+    .projects-badge,
+    .roadmap-badge,
+    .blog-badge,
+    .faq-badge,
+    .contact-badge {
+        font-size: 12px;
+        padding: 6px 14px;
+        margin-bottom: 14px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        line-height: 1.18;
+        margin-bottom: 20px;
+    }
+
+    .projects-intro,
+    .about-description,
+    .faq-description {
+        max-width: 100%;
+    }
+
+    .project-tech-badge {
+        font-size: 11px;
+        padding: 7px 12px;
+    }
+
+    .project-nickname,
+    .project-category,
+    .roadmap-date,
+    .faq-tab {
+        font-size: 11px;
+    }
+
+    .project-description,
+    .roadmap-description,
+    .faq-answer p,
+    .contact-value,
+    .footer-links li a,
+    .footer-links li span,
+    .footer-contact-list li,
+    .footer-tagline {
+        line-height: 1.6;
+    }
+
+    .modal-close,
+    .chat-send-btn,
+    .nav-btn,
+    .github-btn,
+    .footer-social-btn,
+    .contact-icon,
+    .stat-icon,
+    .download-option-icon {
+        border-radius: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .about-badge,
+    .tech-badge,
+    .projects-badge,
+    .roadmap-badge,
+    .blog-badge,
+    .faq-badge,
+    .contact-badge {
+        font-size: 11px;
+        padding: 6px 12px;
+        margin-bottom: 12px;
+    }
+
+    .about-heading,
+    .tech-heading,
+    .projects-heading,
+    .roadmap-heading,
+    .blog-heading,
+    .faq-heading,
+    .contact-heading {
+        margin-bottom: 18px;
+    }
+
+    .project-tech-stack,
+    .projects-navigation,
+    .faq-tabs,
+    .modal-actions,
+    .footer-socials {
+        gap: 8px;
+    }
+}

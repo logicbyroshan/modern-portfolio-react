@@ -86,10 +86,6 @@
     box-shadow: none;
 }
 
-.tech-card:hover::before {
-    opacity: 1;
-}
-
 .tech-icon-wrapper {
     width: 100px;
     height: 100px;

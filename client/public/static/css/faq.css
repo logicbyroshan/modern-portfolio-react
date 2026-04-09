@@ -6,13 +6,6 @@
     position: relative;
 }
 
-.faq-section .container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
 .faq-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -319,10 +312,6 @@
         padding: 60px 0;
     }
 
-    .faq-section .container {
-        padding: 0 20px;
-    }
-
     .faq-badge {
         font-size: 13px;
         padding: 6px 20px;
@@ -402,10 +391,6 @@
         padding: 50px 0;
     }
 
-    .faq-section .container {
-        padding: 0 15px;
-    }
-
     .faq-badge {
         font-size: 12px;
         padding: 5px 16px;
@@ -466,10 +451,6 @@
 @media screen and (max-width: 480px) {
     .faq-section {
         padding: 40px 0;
-    }
-
-    .faq-section .container {
-        padding: 0 15px;
     }
 
     .faq-badge {

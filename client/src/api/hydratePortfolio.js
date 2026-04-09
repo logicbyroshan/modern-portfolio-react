@@ -11,13 +11,123 @@ export function safeUrl(url, fallback = '#') {
   if (!url) return fallback;
 
   try {
-      const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
-      const parsed = new URL(String(url), baseOrigin);
+    const baseOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const parsed = new URL(String(url), baseOrigin);
     const allowedProtocols = new Set(['http:', 'https:', 'mailto:', 'tel:']);
     return allowedProtocols.has(parsed.protocol) ? parsed.href : fallback;
   } catch {
     return fallback;
   }
+}
+
+function setMetaByName(name, content) {
+  if (!content) return;
+
+  let tag = document.head.querySelector(`meta[name="${name}"]`);
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute('name', name);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('content', content);
+}
+
+function setMetaByProperty(property, content) {
+  if (!content) return;
+
+  let tag = document.head.querySelector(`meta[property="${property}"]`);
+  if (!tag) {
+    tag = document.createElement('meta');
+    tag.setAttribute('property', property);
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute('content', content);
+}
+
+function setLinkHref(rel, href) {
+  if (!href) return;
+
+  let link = document.head.querySelector(`link[rel="${rel}"]`);
+  if (!link) {
+    link = document.createElement('link');
+    link.setAttribute('rel', rel);
+    document.head.appendChild(link);
+  }
+  link.setAttribute('href', href);
+}
+
+function setJsonLdById(id, payload) {
+  const script = document.getElementById(id);
+  if (!script || !payload) return;
+
+  script.textContent = JSON.stringify(payload);
+}
+
+function toAbsoluteUrl(url, fallback) {
+  const candidate = safeUrl(url, fallback);
+  try {
+    return new URL(candidate, window.location.origin).href;
+  } catch {
+    return fallback;
+  }
+}
+
+function updateSeoMetadata(profile, projects) {
+  const fullName = profile?.full_name || 'Roshan Damor';
+  const alternateName = 'Roshand Damor';
+  const canonicalUrl = 'https://www.roshandmaor.me/';
+  const title = profile?.meta_title || `${fullName} | Full Stack Developer and AI Engineer Portfolio`;
+  const description = profile?.meta_description || `${fullName}, also searched as ${alternateName}, is a full stack software developer and AI engineer building scalable web apps and AI-powered solutions.`;
+  const keywords = profile?.meta_keywords || 'Roshan Damor, Roshand Damor, Roshan Damor portfolio, full stack developer, AI engineer, software developer portfolio';
+  const ogImage = toAbsoluteUrl(
+    projects?.[0]?.thumbnail || '/static/images/hero.webp',
+    'https://www.roshandmaor.me/static/images/hero.webp',
+  );
+
+  document.title = title;
+  setMetaByName('description', description);
+  setMetaByName('keywords', keywords);
+  setMetaByName('author', fullName);
+  setMetaByName('twitter:title', title);
+  setMetaByName('twitter:description', description);
+  setMetaByName('twitter:image', ogImage);
+
+  setMetaByProperty('og:title', title);
+  setMetaByProperty('og:description', description);
+  setMetaByProperty('og:url', canonicalUrl);
+  setMetaByProperty('og:image', ogImage);
+  setMetaByProperty('og:image:alt', `${fullName} portfolio`);
+
+  setLinkHref('canonical', canonicalUrl);
+
+  const sameAs = [profile?.github, profile?.linkedin, profile?.twitter, profile?.youtube, profile?.website]
+    .map((url) => safeUrl(url, ''))
+    .filter((url) => Boolean(url));
+
+  setJsonLdById('seo-schema-person', {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': `${canonicalUrl}#person`,
+        name: fullName,
+        alternateName: [alternateName],
+        url: canonicalUrl,
+        image: ogImage,
+        jobTitle: profile?.title || 'Full Stack Developer and AI Engineer',
+        description,
+        ...(sameAs.length ? { sameAs } : {}),
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${canonicalUrl}#website`,
+        url: canonicalUrl,
+        name: `${fullName} Portfolio`,
+        description,
+        publisher: { '@id': `${canonicalUrl}#person` },
+      },
+    ],
+  });
 }
 
 function formatDateRange(startDate, endDate, currentlyWorking) {
@@ -206,8 +316,9 @@ function updateExperience(experience) {
 }
 
 export function hydratePortfolioDom(data) {
-  updateProfile(data.profile);
-  updateSkills(data.skills || []);
-  updateProjects(data.projects || []);
-  updateExperience(data.experience || []);
+  updateSeoMetadata(data?.profile, data?.projects || []);
+  updateProfile(data?.profile);
+  updateSkills(data?.skills || []);
+  updateProjects(data?.projects || []);
+  updateExperience(data?.experience || []);
 }

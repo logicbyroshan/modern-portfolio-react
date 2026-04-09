@@ -81,6 +81,14 @@ The project is designed to solve two practical needs:
 	- Per-IP/per-email short-window limits
 	- Duplicate message lockout window
 
+### 2.5 SEO, Crawlability, and AI Discovery
+
+- Canonical metadata, Open Graph tags, and Twitter card metadata for richer search/social previews.
+- JSON-LD structured data for `Person`, `WebSite`, and `FAQPage` entities.
+- `robots.txt` and `sitemap.xml` included in the frontend public assets.
+- `llms.txt` included for AI crawler context and attribution guidance.
+- Dynamic SEO metadata refresh during client-side hydration using profile-managed SEO fields.
+
 ---
 
 ## 3. Technology Stack
@@ -158,10 +166,11 @@ flowchart TB
 ### 4.3 Request Flow (Public Page)
 
 1. React loads `portfolio-body.html`.
-2. React fetches API payloads in parallel for profile/projects/skills/experience.
-3. Hydration layer updates existing DOM blocks with backend data.
-4. Legacy section scripts are loaded sequentially to preserve script dependency order.
-5. User interactions (FAQ, project slider, modal, sound, contact form) execute via legacy JS behavior.
+2. React calls `GET /api/bootstrap/` to retrieve profile/projects/skills/experience in one request.
+3. If bootstrap is unavailable, the client falls back to endpoint-level requests and cached data.
+4. Hydration layer updates existing DOM blocks with backend data and refreshes SEO metadata.
+5. Legacy section scripts are loaded sequentially to preserve script dependency order.
+6. User interactions (FAQ, project slider, modal, sound, contact form) execute via legacy JS behavior.
 
 ### 4.4 Request Flow (Contact Submission)
 

@@ -170,13 +170,11 @@
     .blog-heading {
         font-size: 32px;
         margin-bottom: 40px;
-        padding: 0 20px;
     }
 
     .blog-grid {
         grid-template-columns: 1fr;
         gap: 25px;
-        padding: 0 20px;
     }
 
     .blog-image-wrapper {
@@ -211,12 +209,10 @@
     .blog-heading {
         font-size: 26px;
         margin-bottom: 30px;
-        padding: 0 15px;
     }
 
     .blog-grid {
         gap: 20px;
-        padding: 0 15px;
     }
 
     .blog-image-wrapper {

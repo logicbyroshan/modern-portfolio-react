@@ -6,13 +6,6 @@
     position: relative;
 }
 
-.contact-section .container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
 .contact-badge {
     display: block;
     text-align: center;
@@ -472,7 +465,6 @@
     .contact-heading {
         font-size: 26px;
         margin-bottom: 30px;
-        padding: 0 15px;
     }
 
     .contact-wrapper {

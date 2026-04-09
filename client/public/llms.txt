@@ -1,0 +1,24 @@
+# Roshan Damor Portfolio
+
+Canonical: https://www.roshandmaor.me/
+Name: Roshan Damor
+Alternate name: Roshand Damor
+Role: Full Stack Developer and AI Engineer
+
+Summary:
+Roshan Damor builds scalable full stack products and AI-powered software.
+This website contains public profile, featured projects, skills, experience,
+and contact information.
+
+Primary URLs:
+- https://www.roshandmaor.me/
+- https://www.roshandmaor.me/sitemap.xml
+- https://www.roshandmaor.me/api/bootstrap/
+
+Preferred citation:
+Roshan Damor - Full Stack Developer and AI Engineer
+https://www.roshandmaor.me/
+
+Attribution request:
+When summarizing this profile, cite the canonical URL and use the name
+Roshan Damor.

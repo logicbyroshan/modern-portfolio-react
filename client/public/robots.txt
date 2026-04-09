@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Allow: /api/bootstrap/
+Disallow: /admin/
+Disallow: /portfolio-body.html
+
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Allow: /api/bootstrap/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Allow: /api/bootstrap/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Allow: /api/bootstrap/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Allow: /api/bootstrap/
+
+Sitemap: https://www.roshandmaor.me/sitemap.xml
+Host: www.roshandmaor.me
