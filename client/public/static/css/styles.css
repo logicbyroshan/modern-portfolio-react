@@ -87,9 +87,12 @@ html {
 body {
     font-family: var(--font-body);
     background-color: var(--bg-color);
-    background-image: url('../images/mybgimg.webp');
-    background-position: top center;
-    background-size: 100% auto;
+    background-image:
+        radial-gradient(circle at 12% 14%, rgba(124, 58, 237, 0.32) 0%, rgba(124, 58, 237, 0) 44%),
+        radial-gradient(circle at 78% 20%, rgba(56, 189, 248, 0.26) 0%, rgba(56, 189, 248, 0) 48%),
+        url('../images/mybgimg.webp');
+    background-position: top left, top right, top center;
+    background-size: 140% 140%, 120% 120%, cover;
     background-repeat: no-repeat;
     background-attachment: scroll;
     color: var(--text-color);
@@ -343,6 +346,15 @@ body {
     width: auto;
     max-width: 100%;
     display: block;
+}
+
+.logo-image,
+.hero-image,
+.about-image-item img,
+.project-image img,
+.faq-image {
+    image-rendering: auto;
+    backface-visibility: hidden;
 }
 
 .btn-nav {

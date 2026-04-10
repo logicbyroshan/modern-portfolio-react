@@ -80,8 +80,8 @@ function updateSeoMetadata(profile, projects) {
   const description = profile?.meta_description || `${fullName}, also searched as ${alternateName}, is a full stack software developer and AI engineer building scalable web apps and AI-powered solutions.`;
   const keywords = profile?.meta_keywords || 'Roshan Damor, Roshand Damor, Roshan Damor portfolio, full stack developer, AI engineer, software developer portfolio';
   const ogImage = toAbsoluteUrl(
-    projects?.[0]?.thumbnail || '/static/images/hero.webp',
-    'https://www.roshandmaor.me/static/images/hero.webp',
+    projects?.[0]?.thumbnail || '/static/images/hero.png',
+    'https://www.roshandmaor.me/static/images/hero.png',
   );
 
   document.title = title;

@@ -7,11 +7,11 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.roshandmaor.me/static/images/hero.webp</image:loc>
+      <image:loc>https://www.roshandmaor.me/static/images/hero.png</image:loc>
       <image:title>Roshan Damor Portfolio Hero</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://www.roshandmaor.me/static/images/logo.webp</image:loc>
+      <image:loc>https://www.roshandmaor.me/static/images/logo.png</image:loc>
       <image:title>Roshan Damor Portfolio Logo</image:title>
     </image:image>
   </url>
